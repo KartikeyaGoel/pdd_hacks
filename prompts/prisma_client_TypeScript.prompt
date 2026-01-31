@@ -1,0 +1,49 @@
+<prompt>
+You are tasked with creating a singleton Prisma client for database access throughout the application. This module exports a singleton Prisma client instance with connection pooling to prevent multiple instances in development and handles edge function compatibility. The client ensures efficient database connections and proper cleanup in serverless environments.
+
+Requirements
+1. Export a singleton PrismaClient instance to prevent multiple connections in development
+2. Implement the globalThis pattern to preserve the client instance across hot reloads
+3. Handle edge runtime compatibility for Vercel Edge Functions
+4. Configure connection pooling with appropriate limits
+5. Add proper TypeScript types for the exported prisma instance
+6. Ensure proper cleanup and connection management
+7. Support both development and production environments
+
+Dependencies
+<prisma_schema>
+  <include>src/prisma_schema_example.ts</include>
+</prisma_schema>
+
+<nextjs_prisma_best_practices>
+  <web>https://www.prisma.io/docs/orm/more/help-and-troubleshooting/help-articles/nextjs-prisma-client-dev-practices</web>
+</nextjs_prisma_best_practices>
+
+Instructions
+- Import PrismaClient from '@prisma/client'
+- Implement the globalThis pattern: check if globalThis.prisma exists before creating new instance
+- In development, assign the client to globalThis.prisma to prevent multiple instances during hot reload
+- In production, create a new PrismaClient instance each time
+- Export the prisma instance with type: export const prisma: PrismaClient
+- Add TypeScript declaration for globalThis to include prisma property
+- Consider adding logging configuration for query monitoring in development
+- Handle edge runtime detection using process.env.NEXT_RUNTIME === 'edge'
+- Configure connection pool settings if needed for production optimization
+
+Function signature:
+```typescript
+export const prisma: PrismaClient
+```
+
+Deliverable
+- Production-ready TypeScript module at lib/prisma.ts
+- Singleton pattern prevents connection pool exhaustion
+- Works seamlessly in both App Router server components and API routes
+
+Implementation assumptions
+- Using Next.js 14 App Router with TypeScript
+- Prisma schema has been generated via `npx prisma generate`
+- DATABASE_URL is configured in environment variables
+- Module will be imported in server-side code only (API routes, Server Components)
+- Connection pooling is handled by Prisma automatically based on database provider
+</prompt>

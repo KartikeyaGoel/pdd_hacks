@@ -1,0 +1,77 @@
+<prompt>
+You are tasked with creating an API route that loads conversation transcript and summary, then creates a new agent session with context injected into the system prompt for seamless continuation. This route enables users to resume past learning sessions with full context, providing continuity in their learning journey.
+
+Requirements
+1. Handle POST requests to continue a specific conversation
+2. Authenticate user and verify conversation ownership
+3. Load conversation transcript and summary from database
+4. Build context-aware system prompt with conversation history
+5. Create new ElevenLabs agent session with loaded context
+6. Update conversation record with continuation timestamp
+7. Return WebSocket URL and session details for frontend connection
+
+Dependencies
+<prisma_client>
+  <include>src/prisma_client_example.ts</include>
+</prisma_client>
+
+<types>
+  <include>src/types_example.ts</include>
+</types>
+
+<auth_config>
+  <include>src/auth_config_example.ts</include>
+</auth_config>
+
+<elevenlabs_client>
+  <include>src/elevenlabs_client_example.ts</include>
+</elevenlabs_client>
+
+Instructions
+- Export async function POST(request: NextRequest, { params }: { params: { id: string }})
+- Extract conversation ID from params.id
+- Check authentication with await auth()
+- Return 401 if not authenticated
+- Fetch conversation with messages:
+  await prisma.conversation.findUnique({
+    where: { id },
+    include: { messages: { orderBy: { timestamp: 'asc' }}}
+  })
+- Verify conversation.userId matches authenticated user
+- Return 403 if unauthorized access attempt
+- Return 404 if conversation not found
+- Build system prompt with conversation context:
+  "Continuing previous conversation about {topic}. Summary: {summary}. Recent context: {last_messages}."
+- Create agent session: await createAgentSession(userId, contextPrompt)
+- Update conversation: await prisma.conversation.update({ where: { id }, data: { updatedAt: new Date() }})
+- Return JSON: { websocket_url, session_id, context_summary }
+- Handle errors with try-catch, return appropriate status codes
+
+Endpoint specification:
+- Method: POST
+- Path: /api/conversations/[id]/continue
+- Auth: Required (NextAuth session)
+- Path params: id (conversation UUID)
+- Response: { websocket_url: string, session_id: string, context_summary: string }
+- Error responses: 401 (unauthorized), 403 (forbidden), 404 (not found), 500 (server error)
+
+Context prompt guidelines:
+- Include conversation summary and main topics
+- Include last 5-10 messages for recent context
+- Maintain user preferences from original session
+- Reference documents discussed in previous conversation
+- Set expectation to continue from where conversation left off
+
+Deliverable
+- Production-ready TypeScript route handler at app/api/conversations/[id]/continue/route.ts
+- Loads conversation context and creates agent session
+- Enables seamless conversation continuation
+
+Implementation assumptions
+- Using Next.js 14 App Router with TypeScript
+- NextAuth manages authentication
+- Prisma loads conversation and messages
+- ElevenLabs agent receives context in system prompt
+- Frontend connects to returned WebSocket URL
+- Conversation context improves agent's continuity and relevance
+</prompt>

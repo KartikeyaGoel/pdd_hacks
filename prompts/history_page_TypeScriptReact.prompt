@@ -1,0 +1,88 @@
+<prompt>
+You are tasked with creating a page with ConversationList component showing all past conversations with search and filter capabilities. This page provides users with access to their complete learning history and enables them to review past sessions or continue previous conversations.
+
+Requirements
+1. Create history page as server component for initial data fetching
+2. Display Sidebar for navigation
+3. Render ConversationList component to show past conversations
+4. Optionally add search functionality to filter conversations
+5. Optionally add date range filter or category filter
+6. Fetch conversation history on page load
+7. Implement responsive layout with sidebar and main content
+
+Dependencies
+<root_layout>
+  <include>src/root_layout_example.ts</include>
+</root_layout>
+
+<sidebar_component>
+  <include>src/sidebar_component_example.ts</include>
+</sidebar_component>
+
+<conversation_list_component>
+  <include>src/conversation_list_component_example.ts</include>
+</conversation_list_component>
+
+Instructions
+- Export default async function HistoryPage()
+- Import Sidebar and ConversationList components
+- Check authentication with auth() from lib/auth.ts
+- Redirect to /login if not authenticated
+- Render layout with Sidebar and main content area
+- Main content structure:
+  - Page header with title "Conversation History"
+  - Optional search bar for filtering conversations
+  - Optional filter controls (date range, topics)
+  - ConversationList component displaying all conversations
+- Use TailwindCSS for layout and spacing
+- Set page metadata:
+  export const metadata: Metadata = {
+    title: 'Conversation History - Learning Assistant',
+    description: 'Review your past learning conversations'
+  }
+
+Page structure:
+```tsx
+export default async function HistoryPage() {
+  const session = await auth()
+  if (!session) redirect('/login')
+
+  return (
+    <div className="flex h-screen">
+      <Sidebar />
+      <main className="flex-1 overflow-auto p-8">
+        <h1 className="text-3xl font-bold mb-6">Conversation History</h1>
+        {/* Optional search and filters */}
+        <ConversationList />
+      </main>
+    </div>
+  )
+}
+```
+
+Data sources:
+- API endpoint: GET /api/conversations
+- Fetches user's conversation history sorted by recency
+- Includes conversation summaries, dates, durations, topics
+
+Optional features:
+- Search bar to filter by keywords in summary or topics
+- Date range picker to filter conversations by date
+- Topic/category filter to show conversations about specific subjects
+- Pagination for large conversation lists
+- Export conversation transcripts
+
+Deliverable
+- Production-ready TypeScript React page at app/history/page.tsx
+- History interface with conversation list and optional filters
+- Server component with client component integration
+
+Implementation assumptions
+- Using Next.js 14 App Router with TypeScript
+- Server component for initial auth check
+- ConversationList is client component handling interactions
+- NextAuth manages authentication
+- TailwindCSS for layout and styling
+- Page route is /history
+- Conversations fetched from API and displayed in grid
+</prompt>

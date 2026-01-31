@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --primary: #6B46C1;
+    --secondary: #F3F4F6;
+    --accent: #10B981;
+    --text-primary: #111827;
+    --text-secondary: #6B7280;
+    --error: #EF4444;
+  }
+
+  body {
+    @apply text-text-primary bg-white;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold;
+  }
+
+  button {
+    @apply transition-all duration-200;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-white px-6 py-3 rounded-lg hover:bg-purple-700 active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-text-primary px-4 py-2 rounded-lg hover:bg-gray-300 active:scale-95;
+  }
+
+  .card {
+    @apply bg-white rounded-lg shadow-md p-6 border border-gray-200;
+  }
+
+  .input-field {
+    @apply border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary;
+  }
+}
+
+@layer utilities {
+  .pulse-animation {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}

@@ -1,0 +1,76 @@
+<prompt>
+You are tasked with creating an API route that fetches conversation summaries from database and ElevenLabs API, sorted by recency with pagination support. This route provides users with access to their conversation history, enabling them to review past learning sessions and continue where they left off.
+
+Requirements
+1. Handle GET requests for conversation history
+2. Authenticate user and fetch their conversations from database
+3. Optionally fetch additional metadata from ElevenLabs API
+4. Sort conversations by recency (most recent first)
+5. Support pagination with limit and offset query parameters
+6. Return conversation summaries with title, date, duration, topics
+7. Handle errors gracefully with appropriate status codes
+
+Dependencies
+<prisma_client>
+  <include>src/prisma_client_example.ts</include>
+</prisma_client>
+
+<types>
+  <include>src/types_example.ts</include>
+</types>
+
+<auth_config>
+  <include>src/auth_config_example.ts</include>
+</auth_config>
+
+<elevenlabs_client>
+  <include>src/elevenlabs_client_example.ts</include>
+</elevenlabs_client>
+
+Instructions
+- Export async function GET(request: NextRequest)
+- Check authentication with await auth()
+- Return 401 if not authenticated
+- Parse query parameters for pagination: limit (default 20), offset (default 0)
+- Fetch conversations from database:
+  await prisma.conversation.findMany({
+    where: { userId },
+    orderBy: { startedAt: 'desc' },
+    take: limit,
+    skip: offset,
+    include: { messages: true }
+  })
+- Transform database records to Conversation type from lib/types.ts
+- Optionally enrich with ElevenLabs API data if needed
+- Return JSON: { conversations: Conversation[] }
+- Handle empty results gracefully (return empty array)
+- Handle errors with try-catch, return 500 for server errors
+- Add total count for pagination: { conversations, total }
+
+Endpoint specification:
+- Method: GET
+- Path: /api/conversations
+- Auth: Required (NextAuth session)
+- Query params: limit (number, optional), offset (number, optional)
+- Response: { conversations: Conversation[], total: number }
+- Error responses: 401 (unauthorized), 500 (server error)
+
+Conversation summary includes:
+- id, title, summary
+- startedAt, endedAt, duration
+- message count
+- topics/tags extracted from conversation
+
+Deliverable
+- Production-ready TypeScript route handler at app/api/conversations/route.ts
+- Fetches and returns user's conversation history
+- Supports pagination for large conversation lists
+
+Implementation assumptions
+- Using Next.js 14 App Router with TypeScript
+- NextAuth manages authentication
+- Prisma fetches conversations from PostgreSQL
+- Conversations include related messages for summary generation
+- ElevenLabs API may provide additional metadata (optional)
+- Frontend displays conversations in chronological order
+</prompt>

@@ -1,0 +1,57 @@
+<prompt>
+You are tasked with creating a navigation sidebar with icons for Main conversation, Upload documents, and Past Chats pages. The sidebar highlights the active route and provides intuitive navigation between the main features of the learning assistant application.
+
+Requirements
+1. Create sidebar component with navigation links
+2. Display icons for each main section (conversation, upload, history)
+3. Highlight active route based on current URL
+4. Use Next.js Link component for client-side navigation
+5. Implement responsive design (collapsible on mobile)
+6. Style with TailwindCSS for consistent appearance
+7. Add hover states and smooth transitions
+
+Dependencies
+<types>
+  <include>src/types_example.ts</include>
+</types>
+
+Instructions
+- Create 'use client' component (requires client-side routing)
+- Import usePathname from 'next/navigation' to detect active route
+- Import Link from 'next/link' for navigation
+- Define navigation items array:
+  [
+    { name: 'Main', href: '/', icon: MessageSquare },
+    { name: 'Upload', href: '/upload', icon: Upload },
+    { name: 'History', href: '/history', icon: Clock }
+  ]
+- Use Lucide React icons or similar icon library
+- Render vertical sidebar with navigation items
+- Apply active state styling when pathname matches href
+- Use TailwindCSS classes for layout (flex, flex-col, gap, etc.)
+- Add hover effects (hover:bg-gray-100, transition-colors)
+- Implement active indicator (border-l-4 or background highlight)
+- Make sidebar fixed position on desktop, collapsible drawer on mobile
+- Add aria-label attributes for accessibility
+
+Component props (optional):
+- activeRoute?: string (can be derived from usePathname instead)
+
+Navigation structure:
+- Main (/) - Voice conversation interface
+- Upload (/upload) - Document upload and management
+- History (/history) - Past conversations
+
+Deliverable
+- Production-ready TypeScript React component at components/Sidebar.tsx
+- Client component with Next.js routing integration
+- Responsive navigation with active state highlighting
+
+Implementation assumptions
+- Using Next.js 14 App Router with TypeScript
+- TailwindCSS for styling
+- Lucide React for icons (or Heroicons, React Icons)
+- Component used in root layout or individual pages
+- Sidebar visible on all main pages
+- Mobile responsiveness with hamburger menu or drawer
+</prompt>

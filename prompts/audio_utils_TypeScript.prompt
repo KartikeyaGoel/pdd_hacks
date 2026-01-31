@@ -1,0 +1,61 @@
+<prompt>
+You are tasked with creating client-side utilities for capturing microphone input, managing audio streams, and playing TTS audio responses with proper cleanup and error handling. This module provides the audio infrastructure for real-time voice conversations with the ElevenLabs agent, enabling seamless voice interaction in the browser.
+
+Requirements
+1. Implement getMicrophoneStream to capture user audio input
+2. Implement playAudio for playing agent TTS responses
+3. Implement stopAllStreams for proper cleanup and resource release
+4. Handle browser permissions for microphone access
+5. Support various audio formats and codecs
+6. Provide error handling for denied permissions or unavailable devices
+7. Ensure compatibility across modern browsers (Chrome, Firefox, Safari, Edge)
+
+Dependencies
+<web_audio_api>
+  <web>https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API</web>
+</web_audio_api>
+
+<getusermedia_api>
+  <web>https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia</web>
+</getusermedia_api>
+
+Instructions
+- Implement getMicrophoneStream(): Promise<MediaStream>
+- Use navigator.mediaDevices.getUserMedia({ audio: true })
+- Handle NotAllowedError for denied microphone permission
+- Handle NotFoundError for no available microphone
+- Return MediaStream for WebSocket audio transmission
+- Implement playAudio(audioData: ArrayBuffer): Promise<void>
+- Use Web Audio API: AudioContext and AudioBuffer
+- Decode audio data with audioContext.decodeAudioData()
+- Create buffer source and connect to destination
+- Handle playback with proper timing and cleanup
+- Implement stopAllStreams(): void
+- Track active MediaStream instances
+- Call track.stop() on all audio tracks
+- Close AudioContext if active
+- Clear any pending audio buffers
+- Add error handling with descriptive error messages
+- Support echo cancellation and noise suppression in audio constraints
+- Implement volume control utilities if needed
+
+Function signatures:
+```typescript
+export async function getMicrophoneStream(): Promise<MediaStream>
+export async function playAudio(audioData: ArrayBuffer): Promise<void>
+export function stopAllStreams(): void
+```
+
+Deliverable
+- Production-ready TypeScript module at lib/audio-utils.ts
+- Browser-compatible audio utilities with proper error handling
+- Clean resource management to prevent memory leaks
+
+Implementation assumptions
+- Using Next.js 14 App Router with TypeScript
+- Module runs client-side only (use 'use client' directive)
+- Modern browser support (no IE11)
+- Audio format is compatible with Web Audio API (PCM, MP3, etc.)
+- Used in conjunction with WebSocket for real-time audio streaming
+- Microphone access requested only when user initiates conversation
+</prompt>

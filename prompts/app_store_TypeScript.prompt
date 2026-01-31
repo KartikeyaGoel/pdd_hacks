@@ -1,0 +1,63 @@
+<prompt>
+You are tasked with creating global state management for conversation status, WebSocket connection, document uploads, and conversation history using Zustand. This store provides centralized state and actions for all state mutations, enabling reactive UI updates and coordinated behavior across components in the learning assistant application.
+
+Requirements
+1. Define AppState interface with all application state properties
+2. Implement conversation state: status, current session, transcript
+3. Implement WebSocket connection state: url, connected, error
+4. Implement upload state: progress, current file, error
+5. Implement conversation history state: conversations list, loading
+6. Provide actions for all state mutations (setters, async operations)
+7. Ensure type safety with TypeScript and proper action signatures
+
+Dependencies
+<types>
+  <include>src/types_example.ts</include>
+</types>
+
+<zustand_intro>
+  <web>https://docs.pmnd.rs/zustand/getting-started/introduction</web>
+</zustand_intro>
+
+<zustand_nextjs>
+  <web>https://docs.pmnd.rs/zustand/guides/nextjs</web>
+</zustand_nextjs>
+
+Instructions
+- Import create from 'zustand'
+- Define AppState interface with state and actions
+- Conversation state: conversationStatus ('idle' | 'connecting' | 'active' | 'ended'), currentSessionId, transcript
+- WebSocket state: websocketUrl, isConnected, connectionError
+- Upload state: uploadProgress (0-100), currentUpload (filename), uploadError
+- History state: conversations (Conversation[]), isLoadingHistory
+- Actions: setConversationStatus, setWebSocket, updateTranscript, setUploadProgress, loadConversations
+- Use create<AppState>()((set, get) => ({ ... })) pattern
+- Implement actions with set() for synchronous updates
+- Use get() in actions that need current state
+- Export useAppStore hook: export const useAppStore = create<AppState>(...)
+- Add resetConversation action to clear conversation state
+- Add resetUpload action to clear upload state
+- Implement proper TypeScript types for all state slices
+
+Function signature:
+```typescript
+export const useAppStore: () => AppState
+```
+
+AppState interface includes:
+- State properties and their types
+- Action functions for mutations
+
+Deliverable
+- Production-ready TypeScript module at lib/store.ts
+- Type-safe Zustand store with all application state
+- Ready for use in client components with useAppStore() hook
+
+Implementation assumptions
+- Using Next.js 14 App Router with TypeScript
+- Zustand installed via npm
+- Store used in client components only
+- State updates trigger React re-renders
+- No persistence middleware (state resets on page reload)
+- Actions can be async for API calls
+</prompt>

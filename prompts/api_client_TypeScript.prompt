@@ -1,0 +1,64 @@
+<prompt>
+You are tasked with creating a fetch wrapper providing typed methods for all API endpoints with automatic error handling, request/response transformation, and authentication header injection. This client abstracts away fetch complexity and provides a clean, type-safe interface for all backend API interactions from the frontend.
+
+Requirements
+1. Implement typed methods for all API endpoints (upload, agent, conversations)
+2. Automatically inject authentication headers from NextAuth session
+3. Handle request/response JSON serialization/deserialization
+4. Implement comprehensive error handling with user-friendly messages
+5. Support multipart/form-data for file uploads
+6. Provide loading states and abort controller support
+7. Transform API responses to match frontend type contracts
+
+Dependencies
+<types>
+  <include>src/types_example.ts</include>
+</types>
+
+Instructions
+- Create base fetch wrapper with error handling
+- Implement uploadDocument(file: File, category: string): Promise<DocumentResponse>
+- Use FormData for multipart upload to /api/upload-document
+- Implement initializeAgent(): Promise<AgentSessionResponse>
+- GET request to /api/agent/initialize
+- Implement getConversations(): Promise<Conversation[]>
+- GET request to /api/conversations
+- Implement continueConversation(id: string): Promise<AgentSessionResponse>
+- POST request to /api/conversations/[id]/continue
+- Implement deleteConversation(id: string): Promise<{ success: boolean }>
+- DELETE request to /api/conversations/[id]
+- Add automatic error handling with try-catch
+- Parse error responses and throw descriptive errors
+- Handle network errors, timeouts, and non-2xx responses
+- Support AbortController for request cancellation
+- Use fetch with credentials: 'include' for session cookies
+- Add request timeout (30 seconds default)
+
+Function signatures:
+```typescript
+export async function uploadDocument(file: File, category: string): Promise<DocumentResponse>
+export async function initializeAgent(): Promise<AgentSessionResponse>
+export async function getConversations(): Promise<Conversation[]>
+export async function continueConversation(id: string): Promise<AgentSessionResponse>
+export async function deleteConversation(id: string): Promise<{ success: boolean }>
+```
+
+Error handling:
+- Throw Error with message from API response or generic fallback
+- Handle 401 as authentication error
+- Handle 400 as validation error
+- Handle 500 as server error
+
+Deliverable
+- Production-ready TypeScript module at lib/api-client.ts
+- Type-safe API client with all backend endpoints
+- Comprehensive error handling and request transformation
+
+Implementation assumptions
+- Using Next.js 14 App Router with TypeScript
+- NextAuth handles session management and cookies
+- API routes return JSON responses
+- File uploads use multipart/form-data
+- All endpoints require authentication (session cookie)
+- Base URL is relative (same origin) for API routes
+</prompt>

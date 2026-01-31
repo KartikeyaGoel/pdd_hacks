@@ -1,0 +1,50 @@
+<prompt>
+You are tasked with creating centralized environment variable validation using Zod. This module exports a typed env object with ElevenLabs, NextAuth, database, and external tool API keys. It provides runtime validation and type-safe access to all environment variables, preventing runtime errors from missing or invalid configuration.
+
+Requirements
+1. Use Zod schema to validate all environment variables at application startup
+2. Export typed env object with all configuration values
+3. Validate required vs optional environment variables
+4. Provide clear error messages for missing or invalid variables
+5. Support both server and client environment variables
+6. Include all API keys: ElevenLabs, NextAuth, database, Toolhouse, rtrvr
+7. Handle different environments (development, production, test)
+
+Dependencies
+<t3_env_nextjs>
+  <web>https://env.t3.gg/docs/nextjs</web>
+</t3_env_nextjs>
+
+Instructions
+- Install and use @t3-oss/env-nextjs or implement custom Zod validation
+- Define server-side environment variables with z.object schema
+- Required keys: ELEVENLABS_API_KEY, NEXTAUTH_SECRET, NEXTAUTH_URL, DATABASE_URL
+- Optional keys: TOOLHOUSE_API_KEY, RTRVR_API_KEY
+- Use z.string().min(1) for required strings
+- Use z.string().optional() for optional API keys
+- Add custom validation for URL formats (NEXTAUTH_URL, DATABASE_URL)
+- Export validated env object: export const env = { ... }
+- Throw descriptive errors on validation failure with missing variable names
+- Add NODE_ENV validation with z.enum(['development', 'production', 'test'])
+- Include NEXT_PUBLIC_ prefixed variables for client-side access if needed
+
+Configuration keys:
+- ELEVENLABS_API_KEY: string (required) - API key for ElevenLabs conversational AI
+- NEXTAUTH_SECRET: string (required) - Secret for NextAuth session encryption
+- NEXTAUTH_URL: string (required) - Base URL for NextAuth callbacks
+- DATABASE_URL: string (required) - PostgreSQL connection string
+- TOOLHOUSE_API_KEY: string (optional) - API key for Toolhouse.ai integration
+- RTRVR_API_KEY: string (optional) - API key for rtrvr.ai web scraping
+
+Deliverable
+- Production-ready TypeScript module at lib/env.ts
+- Runtime validation ensures all required variables are present before app starts
+- Type-safe env object prevents typos and provides autocomplete
+
+Implementation assumptions
+- Using Next.js 14 App Router with TypeScript
+- Environment variables loaded from .env.local in development
+- Production environment uses Vercel environment variables
+- Validation runs once at module import time
+- Process exits with error code 1 if validation fails
+</prompt>

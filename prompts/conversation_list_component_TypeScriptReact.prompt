@@ -1,0 +1,76 @@
+<prompt>
+You are tasked with creating a grid of conversation cards sorted by recency, showing date, duration, topic, summary, and Continue/Delete actions. This component displays users' past learning sessions and enables them to review history and resume conversations.
+
+Requirements
+1. Fetch and display conversation history from API
+2. Show conversation cards in grid layout (responsive)
+3. Display date, duration, topic, and summary for each conversation
+4. Provide Continue and Delete action buttons on each card
+5. Sort conversations by recency (most recent first)
+6. Handle loading and empty states
+7. Implement confirmation dialog for delete action
+
+Dependencies
+<types>
+  <include>src/types_example.ts</include>
+</types>
+
+<app_store>
+  <include>src/app_store_example.ts</include>
+</app_store>
+
+<api_client>
+  <include>src/api_client_example.ts</include>
+</api_client>
+
+Instructions
+- Create 'use client' component
+- Use Zustand store: const { conversations, isLoadingHistory, loadConversations } = useAppStore()
+- Use useEffect to load conversations on mount: loadConversations()
+- Fetch conversations with getConversations() from api-client
+- Render grid layout (CSS Grid or TailwindCSS grid classes)
+- For each conversation, display:
+  - Date/time (formatted, e.g., "Jan 15, 2026 at 3:45 PM")
+  - Duration (formatted, e.g., "15 minutes")
+  - Topic/title (extracted from summary)
+  - Summary (2-3 sentences, truncated if too long)
+  - Continue button (primary action)
+  - Delete button (secondary/danger action)
+- Implement handleContinue:
+  - Call continueConversation(id) from api-client
+  - Navigate to main conversation page with resumed session
+  - Emit continueConversation event
+- Implement handleDelete:
+  - Show confirmation dialog ("Are you sure you want to delete this conversation?")
+  - Call deleteConversation(id) from api-client
+  - Remove from UI on success
+  - Emit deleteConversation event
+- Show loading skeleton while fetching
+- Show empty state with message and illustration when no conversations
+- Add hover effects on cards (border highlight, shadow)
+- Use TailwindCSS for responsive grid (grid-cols-1 md:grid-cols-2 lg:grid-cols-3)
+
+Component structure:
+- Loading state (skeleton cards)
+- Empty state (message + icon)
+- Conversation grid (cards with actions)
+- Confirmation modal (for delete)
+
+Card layout:
+- Header: date and duration
+- Body: topic and summary
+- Footer: action buttons
+
+Deliverable
+- Production-ready TypeScript React component at components/ConversationList.tsx
+- Grid display of conversation history with actions
+- Loading, empty, and error states handled
+
+Implementation assumptions
+- Using Next.js 14 App Router with TypeScript
+- API client fetches conversation list
+- Zustand store manages conversation history state
+- TailwindCSS for responsive grid and card styling
+- Component used on /history page
+- Conversations sorted by startedAt descending
+</prompt>

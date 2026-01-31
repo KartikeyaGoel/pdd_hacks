@@ -1,0 +1,84 @@
+<prompt>
+You are tasked with creating a webhook handler that proxies tool execution requests from ElevenLabs agent to external services (Toolhouse.ai for calendar/reminders, rtrvr.ai for web scraping). This webhook enables the conversational AI agent to access external tools and provide enhanced functionality during learning sessions.
+
+Requirements
+1. Handle POST requests from ElevenLabs for tool execution
+2. Validate webhook authenticity and authorization
+3. Parse tool name and parameters from request body
+4. Route requests to appropriate external service (Toolhouse or rtrvr)
+5. Transform responses to format expected by ElevenLabs
+6. Handle errors and timeouts from external services
+7. Return tool execution results to ElevenLabs agent
+
+Dependencies
+<types>
+  <include>src/types_example.ts</include>
+</types>
+
+<env_config>
+  <include>src/env_config_example.ts</include>
+</env_config>
+
+<toolhouse_intro>
+  <web>https://docs.toolhouse.ai/introduction</web>
+</toolhouse_intro>
+
+<rtrvr_api>
+  <web>https://www.rtrvr.ai/</web>
+</rtrvr_api>
+
+Instructions
+- Export async function POST(request: NextRequest)
+- Parse JSON body: { tool_name: string, parameters: object, conversation_id: string }
+- Validate webhook (check API key or signature)
+- Return 401 if validation fails
+- Route based on tool_name:
+  - 'calendar', 'reminder', 'task' → Toolhouse.ai API
+  - 'web_search', 'scrape_url' → rtrvr.ai API
+- For Toolhouse integration:
+  - Use fetch to call Toolhouse API with env.TOOLHOUSE_API_KEY
+  - Pass parameters and conversation context
+  - Parse Toolhouse response and extract result
+- For rtrvr integration:
+  - Use fetch to call rtrvr API with env.RTRVR_API_KEY
+  - Handle web scraping or search requests
+  - Parse and clean HTML/text results
+- Transform response to standard format: { result: object, error?: string }
+- Handle external API errors gracefully
+- Implement timeout (10 seconds) for external calls
+- Log tool executions for debugging and analytics
+- Return JSON response to ElevenLabs
+
+Endpoint specification:
+- Method: POST
+- Path: /api/webhook/tool-execution
+- Auth: Webhook validation (API key or signature)
+- Request body: { tool_name: string, parameters: object, conversation_id: string }
+- Response: { result: object, error?: string }
+- Error responses: 401 (invalid webhook), 400 (unknown tool), 500 (execution error)
+
+Supported tools:
+- Toolhouse.ai: calendar events, reminders, task management
+- rtrvr.ai: web search, URL scraping, content extraction
+
+Tool execution flow:
+1. ElevenLabs agent determines tool is needed
+2. Agent sends webhook request to this endpoint
+3. Endpoint routes to appropriate external service
+4. External service processes request and returns result
+5. Endpoint transforms and returns result to ElevenLabs
+6. Agent incorporates result into conversation response
+
+Deliverable
+- Production-ready TypeScript route handler at app/api/webhook/tool-execution/route.ts
+- Proxies tool requests to external services
+- Handles errors and transforms responses
+
+Implementation assumptions
+- Using Next.js 14 App Router with TypeScript
+- ElevenLabs agent configured to call this webhook for tool execution
+- TOOLHOUSE_API_KEY and RTRVR_API_KEY configured in environment
+- External APIs return JSON responses
+- Tool execution adds significant value to learning conversations
+- Timeout prevents hanging requests from blocking conversation
+</prompt>

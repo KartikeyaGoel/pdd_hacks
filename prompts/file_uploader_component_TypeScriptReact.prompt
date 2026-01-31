@@ -1,0 +1,86 @@
+<prompt>
+You are tasked with creating a document upload interface with drag-drop zone, file type validation, category selection, upload progress, and hierarchical folder display. This component enables users to upload learning materials that will be indexed in the ElevenLabs knowledge base for the AI agent to reference.
+
+Requirements
+1. Implement drag-and-drop file upload zone
+2. Validate file types (PDF, DOCX, TXT, MD, images) and size (max 10MB)
+3. Provide category/folder selection for organizing documents
+4. Display upload progress with percentage and status
+5. Show uploaded documents in hierarchical folder structure
+6. Support multiple file uploads simultaneously
+7. Handle upload errors with user-friendly messages
+
+Dependencies
+<types>
+  <include>src/types_example.ts</include>
+</types>
+
+<app_store>
+  <include>src/app_store_example.ts</include>
+</app_store>
+
+<api_client>
+  <include>src/api_client_example.ts</include>
+</api_client>
+
+<react_dropzone>
+  <web>https://www.npmjs.com/package/react-dropzone</web>
+</react_dropzone>
+
+Instructions
+- Create 'use client' component
+- Import useDropzone from 'react-dropzone'
+- Use Zustand store: const { uploadProgress, setUploadProgress, uploadError } = useAppStore()
+- Configure dropzone with accepted file types:
+  accept: {
+    'application/pdf': ['.pdf'],
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+    'text/plain': ['.txt'],
+    'text/markdown': ['.md'],
+    'image/png': ['.png'],
+    'image/jpeg': ['.jpg', '.jpeg']
+  }
+- Set maxSize: 10 * 1024 * 1024 (10MB)
+- Implement onDrop callback:
+  - Validate files
+  - Show file list with pending status
+  - Upload each file with uploadDocument() from api-client
+  - Track progress and update UI
+  - Handle success/error states
+- Render dropzone area with dashed border and upload icon
+- Add category selector (dropdown or radio buttons):
+  Categories: 'Study Materials', 'Reference Docs', 'Notes', 'Other'
+- Display upload progress bar for active uploads
+- Show success/error messages after upload completes
+- Emit uploadComplete and uploadError events
+- Style with TailwindCSS (border-dashed, bg-gray-50, hover states)
+- Add file list preview before upload (with remove option)
+
+Component structure:
+- Drag-drop zone (large, centered)
+- Category selector
+- File preview list (before upload)
+- Progress indicators (during upload)
+- Document list/folder view (after upload)
+
+Upload flow:
+1. User drags files or clicks to browse
+2. Files validated against type and size limits
+3. User selects category for organization
+4. Upload begins with progress tracking
+5. Success/error feedback displayed
+6. Document appears in folder view
+
+Deliverable
+- Production-ready TypeScript React component at components/FileUploader.tsx
+- Full drag-drop upload interface with validation and progress
+- Organized document display with categories
+
+Implementation assumptions
+- Using Next.js 14 App Router with TypeScript
+- react-dropzone for drag-drop functionality
+- API client handles multipart/form-data upload
+- Zustand store tracks upload state
+- TailwindCSS for styling
+- Component used on /upload page
+</prompt>

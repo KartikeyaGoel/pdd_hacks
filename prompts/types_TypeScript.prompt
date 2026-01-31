@@ -1,0 +1,49 @@
+<prompt>
+You are tasked with creating shared TypeScript types for API contracts and component props. This module provides type definitions for User, Conversation, Document, ConversationSummary, and API request/response types to ensure type safety across frontend and backend. These types serve as the contract between different layers of the application.
+
+Requirements
+1. Define User interface matching the Prisma User model with all fields
+2. Define Conversation interface with messages array and metadata
+3. Define Document interface for uploaded learning materials
+4. Define ConversationMessage interface for chat transcript entries
+5. Create API request/response types for all endpoints
+6. Include utility types for common patterns (Pagination, ApiResponse, etc.)
+7. Export all types for use across the application
+
+Instructions
+- Create User interface with: id, email, name, createdAt, updatedAt, profile (optional JSON)
+- Create Conversation interface with: id, userId, title, summary, messages, startedAt, endedAt, duration
+- Create ConversationMessage interface with: id, conversationId, role ('user' | 'assistant' | 'system'), content, timestamp
+- Create Document interface with: id, userId, name, category, contentType, uploadedAt, size, elevenLabsDocId
+- Define DocumentUploadRequest: { file: File, name: string, category: string }
+- Define DocumentUploadResponse: { success: boolean, document_id: string, status: string }
+- Define AgentSessionResponse: { websocket_url: string, session_id: string, agent_id: string }
+- Define ConversationListResponse: { conversations: Conversation[] }
+- Create utility type: ApiResponse<T> = { success: boolean, data?: T, error?: string }
+- Use proper TypeScript types (Date for timestamps, enum for role, string literals for status)
+
+Function signatures:
+```typescript
+export interface User
+export interface Conversation
+export interface Document
+export interface ConversationMessage
+export interface DocumentUploadRequest
+export interface DocumentUploadResponse
+export interface AgentSessionResponse
+export interface ConversationListResponse
+export type ApiResponse<T>
+```
+
+Deliverable
+- Production-ready TypeScript module at lib/types.ts
+- All types exported and ready for import across the application
+- Types align with Prisma schema and API contracts
+
+Implementation assumptions
+- Using Next.js 14 App Router with TypeScript
+- Types will be imported in both client and server components
+- Prisma-generated types can be referenced but these provide frontend-friendly versions
+- Date fields are serialized as strings in API responses (use string | Date union types)
+- All optional fields marked with ? for proper type checking
+</prompt>

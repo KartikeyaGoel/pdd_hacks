@@ -23,51 +23,120 @@ Montessori is a voice-first AI learning platform that provides a personalized ac
 - **Auth**: NextAuth.js v5
 - **State Management**: Zustand
 - **File Processing**: pdf-parse, mammoth, tesseract.js
+- **Testing**: Jest (unit tests), Playwright (E2E tests)
 
 ## Prerequisites
 
 - Node.js 18.0.0 or higher
 - npm 9.0.0 or higher
 - PostgreSQL database (or Vercel Postgres)
-- ElevenLabs API key
+- ElevenLabs API key with Conversational AI access
 
-## Installation
+## Quick Start
 
-1. Clone the repository:
+### 1. Clone and Install
+
 ```bash
 git clone <repository-url>
-cd montessori-ai
-```
-
-2. Install dependencies:
-```bash
+cd pdd_hacks
 npm install
 ```
 
-3. Set up environment variables:
+### 2. Set Up Environment Variables
+
 ```bash
 cp .env.example .env
 ```
 
-Edit `.env` and add your credentials:
-- `DATABASE_URL`: Your PostgreSQL connection string
-- `NEXTAUTH_SECRET`: Generate with `openssl rand -base64 32`
-- `NEXTAUTH_URL`: Your app URL (http://localhost:3000 for local)
-- `ELEVENLABS_API_KEY`: Your ElevenLabs API key
-- `TOOLHOUSE_API_KEY`: (Optional) Toolhouse.ai API key
-- `RTRVR_API_KEY`: (Optional) rtrvr.ai API key
+Edit `.env` with your credentials:
 
-4. Initialize the database:
 ```bash
+# Required
+DATABASE_URL="postgresql://user:password@localhost:5432/montessori"
+ELEVENLABS_API_KEY="sk_your_api_key_here"
+
+# Optional - for extended features
+TOOLHOUSE_API_KEY="th_your_api_key_here"
+RTRVR_API_KEY="rtrvr_your_api_key_here"
+```
+
+#### Environment Variables Reference
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `DATABASE_URL` | Yes | PostgreSQL connection string |
+| `ELEVENLABS_API_KEY` | Yes | ElevenLabs API key for voice AI |
+| `TOOLHOUSE_API_KEY` | No | Toolhouse.ai key for calendar/reminders |
+| `RTRVR_API_KEY` | No | rtrvr.ai key for web scraping |
+
+### 3. Set Up the Database
+
+**Option A: Local PostgreSQL**
+
+```bash
+# Create database (if using local PostgreSQL)
+createdb montessori
+
+# Push schema to database
 npm run db:push
 ```
 
-5. Run the development server:
+**Option B: Docker PostgreSQL**
+
+```bash
+# Start PostgreSQL container
+docker run --name montessori-db \
+  -e POSTGRES_USER=user \
+  -e POSTGRES_PASSWORD=password \
+  -e POSTGRES_DB=montessori \
+  -p 5432:5432 \
+  -d postgres:15-alpine
+
+# Push schema to database
+npm run db:push
+```
+
+### 4. Run the Development Server
+
 ```bash
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to see the app.
+
+## Testing
+
+### Unit Tests (Jest)
+
+```bash
+# Run unit tests
+npm run test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage report
+npm run test:coverage
+```
+
+### End-to-End Tests (Playwright)
+
+```bash
+# Run E2E tests (starts dev server automatically)
+npm run test:e2e
+
+# Run E2E tests with UI
+npm run test:e2e:ui
+
+# Run E2E tests in headed browser
+npm run test:e2e:headed
+```
+
+### Run All Tests
+
+```bash
+npm run test:all
+```
 
 ## Project Structure
 
@@ -136,10 +205,25 @@ The application follows a clean architecture with clear separation of concerns:
 
 ## Development
 
+### Available Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Build for production |
+| `npm start` | Start production server |
+| `npm run lint` | Run ESLint |
+| `npm run type-check` | Run TypeScript type checking |
+| `npm run test` | Run unit tests |
+| `npm run test:e2e` | Run E2E tests |
+| `npm run db:push` | Push schema to database |
+| `npm run db:generate` | Generate Prisma client |
+| `npm run db:studio` | Open Prisma Studio GUI |
+
 ### Database Management
 
 ```bash
-# Generate Prisma client
+# Generate Prisma client (runs automatically on npm install)
 npm run db:generate
 
 # Push schema changes to database
@@ -149,15 +233,13 @@ npm run db:push
 npm run db:studio
 ```
 
-### Type Checking
+### Code Quality
 
 ```bash
+# Type checking
 npm run type-check
-```
 
-### Linting
-
-```bash
+# Linting
 npm run lint
 ```
 
@@ -168,20 +250,104 @@ npm run build
 npm start
 ```
 
+## Troubleshooting
+
+### Common Issues
+
+**Database connection failed**
+```
+Error: P1001: Can't reach database server
+```
+- Ensure PostgreSQL is running
+- Verify `DATABASE_URL` in `.env` is correct
+- Check if the database exists: `psql -l`
+
+**Prisma client not generated**
+```
+Error: @prisma/client did not initialize yet
+```
+Run:
+```bash
+npm run db:generate
+```
+
+**ElevenLabs API errors**
+- Verify your API key is valid and has Conversational AI access
+- Check your account has sufficient credits
+- Ensure the API key starts with `sk_`
+
+**Port 3000 already in use**
+```bash
+# Find and kill process on port 3000
+lsof -ti:3000 | xargs kill -9
+
+# Or use a different port
+PORT=3001 npm run dev
+```
+
+**E2E tests timing out**
+- Ensure the dev server can start successfully
+- Check if port 3000 is available
+- Increase timeout in `playwright.config.ts` if needed
+
 ## Deployment
 
 ### Vercel (Recommended)
 
 1. Push your code to GitHub
-2. Import the project in Vercel
-3. Add environment variables in Vercel dashboard
+2. Import the project in [Vercel Dashboard](https://vercel.com/new)
+3. Add environment variables:
+   - `DATABASE_URL` - Use Vercel Postgres or external PostgreSQL
+   - `ELEVENLABS_API_KEY` - Your ElevenLabs API key
+   - `TOOLHOUSE_API_KEY` (optional)
+   - `RTRVR_API_KEY` (optional)
 4. Deploy
 
-### Docker (Alternative)
+### Docker
 
+**Build and run:**
 ```bash
 docker build -t montessori-ai .
-docker run -p 3000:3000 montessori-ai
+docker run -p 3000:3000 \
+  -e DATABASE_URL="postgresql://..." \
+  -e ELEVENLABS_API_KEY="sk_..." \
+  montessori-ai
+```
+
+**Docker Compose (with PostgreSQL):**
+
+Create a `docker-compose.yml`:
+```yaml
+version: '3.8'
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/montessori
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=montessori
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
+```
+
+Run:
+```bash
+docker-compose up -d
 ```
 
 ## Sponsor Integration

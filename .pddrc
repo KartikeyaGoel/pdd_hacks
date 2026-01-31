@@ -1,0 +1,224 @@
+version: "1.0"
+
+contexts:
+  # ============================================================
+  # DATABASE / PRISMA
+  # ============================================================
+
+  prisma_schema:
+    paths: ["*prisma_schema*"]
+    defaults:
+      outputs:
+        code:
+          path: "prisma/schema.prisma"
+
+  prisma_client:
+    paths: ["*prisma_client*"]
+    defaults:
+      outputs:
+        code:
+          path: "lib/prisma.ts"
+
+  # ============================================================
+  # SHARED TYPES AND CONFIG
+  # ============================================================
+
+  types:
+    paths: ["*types*"]
+    defaults:
+      outputs:
+        code:
+          path: "lib/types.ts"
+
+  env_config:
+    paths: ["*env_config*"]
+    defaults:
+      outputs:
+        code:
+          path: "lib/env.ts"
+
+  auth_config:
+    paths: ["*auth_config*"]
+    defaults:
+      outputs:
+        code:
+          path: "lib/auth.ts"
+
+  # ============================================================
+  # LIBRARY MODULES
+  # ============================================================
+
+  file_processing:
+    paths: ["*file_processing*"]
+    defaults:
+      outputs:
+        code:
+          path: "lib/file-processing.ts"
+
+  elevenlabs_client:
+    paths: ["*elevenlabs_client*"]
+    defaults:
+      outputs:
+        code:
+          path: "lib/elevenlabs.ts"
+
+  audio_utils:
+    paths: ["*audio_utils*"]
+    defaults:
+      outputs:
+        code:
+          path: "lib/audio-utils.ts"
+
+  app_store:
+    paths: ["*app_store*"]
+    defaults:
+      outputs:
+        code:
+          path: "lib/store.ts"
+
+  api_client:
+    paths: ["*api_client*"]
+    defaults:
+      outputs:
+        code:
+          path: "lib/api-client.ts"
+
+  # ============================================================
+  # API ROUTES
+  # ============================================================
+
+  api_auth_nextauth_route:
+    paths: ["*api_auth_nextauth_route*"]
+    defaults:
+      outputs:
+        code:
+          path: "app/api/auth/[...nextauth]/route.ts"
+
+  api_upload_document_route:
+    paths: ["*api_upload_document_route*"]
+    defaults:
+      outputs:
+        code:
+          path: "app/api/upload-document/route.ts"
+
+  api_documents_list_route:
+    paths: ["*api_documents_list_route*"]
+    defaults:
+      outputs:
+        code:
+          path: "app/api/documents/route.ts"
+
+  api_agent_initialize_route:
+    paths: ["*api_agent_initialize_route*"]
+    defaults:
+      outputs:
+        code:
+          path: "app/api/agent/initialize/route.ts"
+
+  api_conversations_list_route:
+    paths: ["*api_conversations_list_route*"]
+    defaults:
+      outputs:
+        code:
+          path: "app/api/conversations/route.ts"
+
+  api_conversations_continue_route:
+    paths: ["*api_conversations_continue_route*"]
+    defaults:
+      outputs:
+        code:
+          path: "app/api/conversations/[id]/continue/route.ts"
+
+  api_conversations_delete_route:
+    paths: ["*api_conversations_delete_route*"]
+    defaults:
+      outputs:
+        code:
+          path: "app/api/conversations/[id]/route.ts"
+
+  api_webhook_conversation_end_route:
+    paths: ["*api_webhook_conversation_end_route*"]
+    defaults:
+      outputs:
+        code:
+          path: "app/api/webhook/conversation-end/route.ts"
+
+  api_webhook_tool_execution_route:
+    paths: ["*api_webhook_tool_execution_route*"]
+    defaults:
+      outputs:
+        code:
+          path: "app/api/webhook/tool-execution/route.ts"
+
+  # ============================================================
+  # PAGES (Next.js App Router)
+  # ============================================================
+
+  root_layout:
+    paths: ["*root_layout*"]
+    defaults:
+      outputs:
+        code:
+          path: "app/layout.tsx"
+
+  main_page:
+    paths: ["*main_page*"]
+    defaults:
+      outputs:
+        code:
+          path: "app/page.tsx"
+
+  upload_page:
+    paths: ["*upload_page*"]
+    defaults:
+      outputs:
+        code:
+          path: "app/upload/page.tsx"
+
+  history_page:
+    paths: ["*history_page*"]
+    defaults:
+      outputs:
+        code:
+          path: "app/history/page.tsx"
+
+  # ============================================================
+  # COMPONENTS
+  # ============================================================
+
+  sidebar_component:
+    paths: ["*sidebar_component*"]
+    defaults:
+      outputs:
+        code:
+          path: "components/Sidebar.tsx"
+
+  voice_interface_component:
+    paths: ["*voice_interface_component*"]
+    defaults:
+      outputs:
+        code:
+          path: "components/VoiceInterface.tsx"
+
+  file_uploader_component:
+    paths: ["*file_uploader_component*"]
+    defaults:
+      outputs:
+        code:
+          path: "components/FileUploader.tsx"
+
+  conversation_list_component:
+    paths: ["*conversation_list_component*"]
+    defaults:
+      outputs:
+        code:
+          path: "components/ConversationList.tsx"
+
+  # ============================================================
+  # DEFAULT FALLBACK
+  # ============================================================
+
+  default:
+    defaults:
+      prompts_dir: "prompts/"
+      generate_output_path: "src/"

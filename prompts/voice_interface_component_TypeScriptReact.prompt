@@ -1,0 +1,83 @@
+<prompt>
+You are tasked with creating the main conversation UI with large play button, pulsing animation during agent speech, microphone controls, text input toggle, and live transcript display. This component provides the core voice interface for interacting with the ElevenLabs conversational AI agent.
+
+Requirements
+1. Display large play/pause button to start/stop conversation
+2. Show pulsing animation while agent is speaking
+3. Provide microphone mute/unmute controls
+4. Add optional text input toggle for typing instead of speaking
+5. Display live transcript of conversation (user and agent messages)
+6. Handle WebSocket connection to ElevenLabs agent
+7. Integrate with audio utilities for microphone and playback
+
+Dependencies
+<types>
+  <include>src/types_example.ts</include>
+</types>
+
+<app_store>
+  <include>src/app_store_example.ts</include>
+</app_store>
+
+<api_client>
+  <include>src/api_client_example.ts</include>
+</api_client>
+
+<audio_utils>
+  <include>src/audio_utils_example.ts</include>
+</audio_utils>
+
+<elevenlabs_react_sdk>
+  <web>https://elevenlabs.io/docs/conversational-ai/docs/react-sdk</web>
+</elevenlabs_react_sdk>
+
+<elevenlabs_nextjs_example>
+  <web>https://github.com/elevenlabs/elevenlabs-examples/tree/main/examples/conversational-ai/nextjs-demo</web>
+</elevenlabs_nextjs_example>
+
+Instructions
+- Create 'use client' component (requires browser APIs)
+- Use Zustand store: const { conversationStatus, setConversationStatus, transcript, updateTranscript } = useAppStore()
+- Use useState for local component state (isMuted, showTextInput, etc.)
+- Implement handleStartConversation:
+  - Call initializeAgent() from api-client
+  - Get WebSocket URL and connect
+  - Call getMicrophoneStream() from audio-utils
+  - Set conversationStatus to 'active'
+- Implement WebSocket message handlers:
+  - On agent audio: call playAudio() from audio-utils
+  - On transcript update: call updateTranscript()
+  - On conversation end: cleanup and set status to 'ended'
+- Implement handleStopConversation:
+  - Close WebSocket connection
+  - Call stopAllStreams() from audio-utils
+  - Set conversationStatus to 'ended'
+- Render large circular play button (when idle) or pause button (when active)
+- Add pulsing animation using TailwindCSS animate-pulse when agent is speaking
+- Display transcript in scrollable container with auto-scroll to bottom
+- Style user messages differently from agent messages
+- Add microphone mute button (mutes user input but keeps listening)
+- Add text input toggle button to switch between voice and text modes
+- Implement error handling with user-friendly error messages
+- Emit conversationStart and conversationEnd events
+
+Component structure:
+- Play/Pause button (large, centered)
+- Pulsing indicator during agent speech
+- Transcript display (scrollable)
+- Control bar (mute, text input toggle)
+- Error/status messages
+
+Deliverable
+- Production-ready TypeScript React component at components/VoiceInterface.tsx
+- Full voice conversation interface with WebSocket and audio integration
+- Real-time transcript display with message differentiation
+
+Implementation assumptions
+- Using Next.js 14 App Router with TypeScript
+- ElevenLabs WebSocket API for real-time conversation
+- Web Audio API for microphone and playback
+- Zustand store manages conversation state
+- TailwindCSS for styling and animations
+- Component is the main feature on homepage
+</prompt>

@@ -1,0 +1,64 @@
+% Purpose: Create NextAuth v5 API route handler for authentication endpoints
+
+You are tasked with creating a Next.js API route that exposes NextAuth v5 authentication endpoints (sign-in, sign-out, session, providers). This route uses the handlers exported from lib/auth.ts and follows the NextAuth v5 App Router pattern.
+
+% Context
+- **Framework**: Next.js 14+ with App Router
+- **Auth Library**: NextAuth v5 (Auth.js)
+- **File Location**: app/api/auth/[...nextauth]/route.ts
+- **Dependencies**: lib/auth.ts (provides handlers)
+
+% Requirements
+
+1. **Import Auth Handlers**
+   - Import `handlers` from `@/lib/auth`
+   - Handlers include GET and POST methods for all NextAuth operations
+
+2. **Export Route Handlers**
+   - Export GET handler for: session retrieval, provider listing, CSRF token
+   - Export POST handler for: sign-in, sign-out, callback processing
+   - Use Next.js App Router route handler syntax
+
+3. **NextAuth v5 Compatibility**
+   - Follow Auth.js v5 conventions (not v4 API routes pattern)
+   - Use `handlers.GET` and `handlers.POST` from lib/auth.ts
+   - No custom logic needed - all configuration is in lib/auth.ts
+
+4. **Error Handling**
+   - Rely on NextAuth's built-in error handling
+   - Trust that lib/auth.ts has proper error configuration
+
+% Implementation Guidelines
+
+**File Structure:**
+```typescript
+import { handlers } from "@/lib/auth"
+
+export const { GET, POST } = handlers
+```
+
+**Key Points:**
+- This is a minimal file - all logic lives in lib/auth.ts
+- NextAuth v5 uses catch-all routes: `/api/auth/[...nextauth]`
+- Handlers automatically support:
+  - `/api/auth/signin` - Sign-in page
+  - `/api/auth/signout` - Sign-out endpoint
+  - `/api/auth/session` - Session retrieval
+  - `/api/auth/providers` - List of configured providers
+  - `/api/auth/callback/[provider]` - OAuth callbacks
+  - `/api/auth/csrf` - CSRF token for forms
+
+**TypeScript Types:**
+- Use NextRequest/NextResponse types if adding custom logic
+- Default export of handlers should handle all typing
+
+% Context URLs Reference
+- NextAuth v5 Setup: https://authjs.dev/getting-started/installation?framework=next.js
+- Route Handler Migration: https://authjs.dev/guides/upgrade-to-v5
+
+% Output
+Create a production-ready Next.js API route file that:
+1. Exports GET and POST handlers from NextAuth
+2. Uses NextAuth v5 App Router pattern
+3. Requires no additional configuration (all in lib/auth.ts)
+4. Follows Next.js 14+ conventions

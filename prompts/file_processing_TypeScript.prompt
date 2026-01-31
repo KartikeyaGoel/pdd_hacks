@@ -1,0 +1,64 @@
+<prompt>
+You are tasked with creating utilities for processing PDF, DOCX, TXT, MD, and image files. This module exports functions for text extraction with OCR support for images, enabling the application to convert various document formats into text that can be indexed in the ElevenLabs knowledge base. It provides robust file processing with error handling for various document formats.
+
+Requirements
+1. Support text extraction from PDF, DOCX, TXT, MD file formats
+2. Implement OCR for image files (PNG, JPG, JPEG) using Tesseract.js
+3. Validate file types and sizes before processing
+4. Handle extraction errors gracefully with descriptive messages
+5. Return clean, formatted text suitable for knowledge base indexing
+6. Implement file size limits (max 10MB per file)
+7. Support UTF-8 encoding for text files
+
+Dependencies
+<types>
+  <include>src/types_example.ts</include>
+</types>
+
+<pdf_parse_docs>
+  <web>https://www.npmjs.com/package/pdf-parse</web>
+</pdf_parse_docs>
+
+<mammoth_docx>
+  <web>https://www.npmjs.com/package/mammoth</web>
+</mammoth_docx>
+
+<tesseract_ocr>
+  <web>https://www.npmjs.com/package/tesseract.js</web>
+</tesseract_ocr>
+
+Instructions
+- Implement extractText(file: File): Promise<string> as main export
+- Use pdf-parse library for PDF extraction
+- Use mammoth library for DOCX extraction: mammoth.extractRawText()
+- Read TXT and MD files directly with proper encoding
+- Use Tesseract.js for OCR on image files (PNG, JPG, JPEG)
+- Implement validateFile(file: File): ValidationResult
+- Check file.type against allowed MIME types
+- Check file.size against 10MB limit (10 * 1024 * 1024 bytes)
+- Return validation errors with descriptive messages
+- Handle async operations with proper error catching
+- Strip excessive whitespace and normalize line breaks
+- For PDFs, extract text and preserve basic formatting
+- For DOCX, use raw text extraction (not HTML)
+
+Function signatures:
+```typescript
+export async function extractText(file: File): Promise<string>
+export function validateFile(file: File): ValidationResult
+```
+
+Where ValidationResult = { valid: boolean, error?: string }
+
+Deliverable
+- Production-ready TypeScript module at lib/file-processing.ts
+- Handles all supported file types with appropriate libraries
+- Robust error handling for corrupted or invalid files
+
+Implementation assumptions
+- Using Next.js 14 App Router with TypeScript
+- File processing runs server-side in API routes
+- Libraries: pdf-parse, mammoth, tesseract.js
+- Files are passed as File objects from multipart form uploads
+- Extracted text is used for ElevenLabs knowledge base indexing
+</prompt>

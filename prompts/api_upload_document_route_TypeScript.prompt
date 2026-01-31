@@ -1,0 +1,78 @@
+<prompt>
+You are tasked with creating an API route that handles multipart file uploads, validates file type and size, extracts text content, and forwards to ElevenLabs Knowledge Base API with user namespace. This route processes document uploads and makes them available to the conversational AI agent for retrieval during learning sessions.
+
+Requirements
+1. Handle POST requests with multipart/form-data file uploads
+2. Validate file type against allowed formats (PDF, DOCX, TXT, MD, images)
+3. Validate file size (max 10MB)
+4. Extract text content using file-processing utilities
+5. Upload processed document to ElevenLabs Knowledge Base with user namespace
+6. Store document metadata in PostgreSQL via Prisma
+7. Return success response with document ID and status
+
+Dependencies
+<prisma_client>
+  <include>src/prisma_client_example.ts</include>
+</prisma_client>
+
+<types>
+  <include>src/types_example.ts</include>
+</types>
+
+<auth_config>
+  <include>src/auth_config_example.ts</include>
+</auth_config>
+
+<file_processing>
+  <include>src/file_processing_example.ts</include>
+</file_processing>
+
+<elevenlabs_client>
+  <include>src/elevenlabs_client_example.ts</include>
+</elevenlabs_client>
+
+<nextjs_route_handlers>
+  <web>https://nextjs.org/docs/app/building-your-application/routing/route-handlers</web>
+</nextjs_route_handlers>
+
+<nextjs_request_api>
+  <web>https://nextjs.org/docs/app/api-reference/functions/next-request</web>
+</nextjs_request_api>
+
+Instructions
+- Export async function POST(request: NextRequest)
+- Check authentication with await auth() from lib/auth.ts
+- Return 401 if not authenticated
+- Parse multipart form data with await request.formData()
+- Extract file, name, and category fields
+- Validate file with validateFile() from lib/file-processing.ts
+- Return 400 if validation fails
+- Extract text with await extractText(file)
+- Upload to ElevenLabs with uploadToKnowledgeBase(userId, { name, content, category })
+- Store in database with prisma.document.create({ userId, name, category, elevenLabsDocId, ... })
+- Return JSON response: { success: true, document_id, status }
+- Handle errors with try-catch and return appropriate status codes
+- Log errors for debugging
+- Return descriptive error messages to client
+
+Endpoint specification:
+- Method: POST
+- Path: /api/upload-document
+- Auth: Required (NextAuth session)
+- Request: multipart/form-data with fields: file (File), name (string), category (string)
+- Response: { success: boolean, document_id: string, status: string }
+- Error responses: 401 (unauthorized), 400 (validation error), 500 (server error)
+
+Deliverable
+- Production-ready TypeScript route handler at app/api/upload-document/route.ts
+- Handles file uploads with validation and processing
+- Integrates with ElevenLabs Knowledge Base and Prisma database
+
+Implementation assumptions
+- Using Next.js 14 App Router with TypeScript
+- NextAuth provides auth() utility for session checking
+- File processing utilities handle text extraction
+- ElevenLabs client manages knowledge base uploads
+- Prisma client stores document metadata
+- User ID obtained from session.user.id
+</prompt>

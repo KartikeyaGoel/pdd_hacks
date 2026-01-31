@@ -1,0 +1,70 @@
+<prompt>
+You are tasked with creating an API route that creates an ElevenLabs agent session with custom system prompt including user profile and learning preferences. This route initializes the conversational AI agent and returns a WebSocket URL for frontend connection, enabling real-time voice conversations tailored to the user's learning needs.
+
+Requirements
+1. Handle GET requests to initialize agent session
+2. Authenticate user and retrieve user profile from database
+3. Build custom system prompt with user context and learning preferences
+4. Create ElevenLabs agent session with system prompt
+5. Return WebSocket URL, session ID, and agent ID
+6. Store conversation metadata in database for future reference
+7. Handle errors with appropriate status codes and messages
+
+Dependencies
+<prisma_client>
+  <include>src/prisma_client_example.ts</include>
+</prisma_client>
+
+<types>
+  <include>src/types_example.ts</include>
+</types>
+
+<auth_config>
+  <include>src/auth_config_example.ts</include>
+</auth_config>
+
+<elevenlabs_client>
+  <include>src/elevenlabs_client_example.ts</include>
+</elevenlabs_client>
+
+Instructions
+- Export async function GET(request: NextRequest)
+- Check authentication with await auth()
+- Return 401 if not authenticated
+- Fetch user profile from database: await prisma.user.findUnique({ where: { id: userId }})
+- Build system prompt incorporating user name, learning preferences, uploaded documents
+- Example prompt: "You are a learning assistant for {name}. The user prefers {learning_style}. Available documents: {document_list}."
+- Call createAgentSession(userId, systemPrompt) from lib/elevenlabs.ts
+- Create conversation record: await prisma.conversation.create({ userId, startedAt: new Date() })
+- Return JSON: { websocket_url, session_id, agent_id }
+- Handle errors with try-catch
+- Return 500 for server errors with error message
+- Log session creation for analytics
+
+Endpoint specification:
+- Method: GET
+- Path: /api/agent/initialize
+- Auth: Required (NextAuth session)
+- Response: { websocket_url: string, session_id: string, agent_id: string }
+- Error responses: 401 (unauthorized), 500 (server error)
+
+System prompt guidelines:
+- Include user's name and preferences
+- Reference available knowledge base documents
+- Set learning assistant role and capabilities
+- Mention available tools (web search, calendar, reminders)
+- Encourage interactive learning and follow-up questions
+
+Deliverable
+- Production-ready TypeScript route handler at app/api/agent/initialize/route.ts
+- Creates personalized agent sessions with user context
+- Returns WebSocket connection details for frontend
+
+Implementation assumptions
+- Using Next.js 14 App Router with TypeScript
+- NextAuth manages authentication
+- ElevenLabs client handles agent session creation
+- Prisma stores conversation metadata
+- System prompt customized per user for personalized experience
+- WebSocket URL used by frontend for real-time audio streaming
+</prompt>

@@ -1,0 +1,88 @@
+<prompt>
+You are tasked with creating a page with FileUploader component, document list with folder organization, and category management. This page enables users to upload, organize, and manage their learning materials that the AI agent can reference during conversations.
+
+Requirements
+1. Create upload page as server component for initial data fetching
+2. Display Sidebar for navigation
+3. Render FileUploader component for document uploads
+4. Show existing documents organized by category/folder
+5. Fetch user's documents on page load
+6. Provide document management actions (view, delete)
+7. Implement responsive layout with sidebar and main content
+
+Dependencies
+<root_layout>
+  <include>src/root_layout_example.ts</include>
+</root_layout>
+
+<sidebar_component>
+  <include>src/sidebar_component_example.ts</include>
+</sidebar_component>
+
+<file_uploader_component>
+  <include>src/file_uploader_component_example.ts</include>
+</file_uploader_component>
+
+Instructions
+- Export default async function UploadPage()
+- Import Sidebar and FileUploader components
+- Optionally fetch initial document list server-side (or let client components handle it)
+- Check authentication with auth() from lib/auth.ts
+- Redirect to /login if not authenticated
+- Render layout with Sidebar and main content area
+- Main content structure:
+  - Page header with title "Upload Documents"
+  - FileUploader component for new uploads
+  - Document list/grid showing existing documents
+- Organize documents by category (folder view or tabs)
+- Use TailwindCSS for layout and spacing
+- Set page metadata:
+  export const metadata: Metadata = {
+    title: 'Upload Documents - Learning Assistant',
+    description: 'Upload and manage your learning materials'
+  }
+
+Page structure:
+```tsx
+export default async function UploadPage() {
+  const session = await auth()
+  if (!session) redirect('/login')
+
+  return (
+    <div className="flex h-screen">
+      <Sidebar />
+      <main className="flex-1 overflow-auto p-8">
+        <h1 className="text-3xl font-bold mb-6">Upload Documents</h1>
+        <FileUploader />
+        {/* Document list component can be added here */}
+      </main>
+    </div>
+  )
+}
+```
+
+Data sources:
+- API endpoint: GET /api/documents (to be created or use /api/upload-document for listing)
+- Fetches user's uploaded documents with metadata
+- Documents grouped by category for organized display
+
+Document list features:
+- Group by category (Study Materials, Reference Docs, Notes, Other)
+- Show filename, upload date, size
+- Provide delete action per document
+- Optional preview or download link
+
+Deliverable
+- Production-ready TypeScript React page at app/upload/page.tsx
+- Upload interface with document management
+- Server component with client component integration
+
+Implementation assumptions
+- Using Next.js 14 App Router with TypeScript
+- Server component for initial auth check
+- FileUploader is client component handling uploads
+- NextAuth manages authentication
+- TailwindCSS for layout and styling
+- Page route is /upload
+- Documents fetched from API and displayed in organized view
+</prompt>

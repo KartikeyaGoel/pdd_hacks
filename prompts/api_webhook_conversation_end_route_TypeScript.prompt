@@ -1,0 +1,92 @@
+<prompt>
+You are tasked with creating a webhook handler that receives conversation transcripts from ElevenLabs, generates summaries via LLM, extracts topics, updates user profiles, and stores metadata in the database. This webhook processes completed conversations to build user learning history and improve personalization.
+
+Requirements
+1. Handle POST requests from ElevenLabs webhook for conversation end events
+2. Validate webhook signature or API key for security
+3. Parse conversation transcript and metadata from request body
+4. Generate conversation summary using LLM (OpenAI, Anthropic, or ElevenLabs)
+5. Extract key topics and learning outcomes from transcript
+6. Update user profile with learning preferences and interests
+7. Store conversation summary and messages in database
+
+Dependencies
+<prisma_client>
+  <include>src/prisma_client_example.ts</include>
+</prisma_client>
+
+<types>
+  <include>src/types_example.ts</include>
+</types>
+
+<elevenlabs_client>
+  <include>src/elevenlabs_client_example.ts</include>
+</elevenlabs_client>
+
+Instructions
+- Export async function POST(request: NextRequest)
+- Parse JSON body with conversation data:
+  { conversation_id, user_id, transcript: Message[], duration_seconds }
+- Validate webhook authenticity (check API key or signature header)
+- Return 401 if validation fails
+- Fetch conversation record: await prisma.conversation.findUnique({ where: { id: conversation_id }})
+- Generate summary using LLM:
+  - Prompt: "Summarize this learning conversation, extract key topics and outcomes"
+  - Input: transcript messages
+  - Output: 2-3 sentence summary + topic list
+- Extract topics using keyword extraction or LLM
+- Update conversation in database:
+  await prisma.conversation.update({
+    where: { id: conversation_id },
+    data: {
+      endedAt: new Date(),
+      duration: duration_seconds,
+      summary: generated_summary,
+      title: extracted_title
+    }
+  })
+- Store messages:
+  await prisma.conversationMessage.createMany({
+    data: transcript.map(msg => ({
+      conversationId: conversation_id,
+      role: msg.role,
+      content: msg.content,
+      timestamp: msg.timestamp
+    }))
+  })
+- Update user profile with learned topics (optional):
+  await prisma.user.update({
+    where: { id: user_id },
+    data: { profile: { interests: [...existing, ...new_topics] }}
+  })
+- Return JSON: { success: true }
+- Handle errors gracefully, log for debugging
+
+Endpoint specification:
+- Method: POST
+- Path: /api/webhook/conversation-end
+- Auth: Webhook signature or API key validation
+- Request body: { conversation_id: string, user_id: string, transcript: Message[], duration_seconds: number }
+- Response: { success: boolean }
+- Error responses: 401 (invalid webhook), 500 (server error)
+
+LLM summary guidelines:
+- Keep summary concise (2-3 sentences)
+- Extract 3-5 key topics or concepts discussed
+- Identify learning outcomes or questions asked
+- Capture tone and engagement level
+- Generate descriptive title for conversation
+
+Deliverable
+- Production-ready TypeScript route handler at app/api/webhook/conversation-end/route.ts
+- Processes conversation end events from ElevenLabs
+- Generates summaries and updates database
+
+Implementation assumptions
+- Using Next.js 14 App Router with TypeScript
+- ElevenLabs sends POST request to this webhook when conversation ends
+- Webhook URL configured in ElevenLabs dashboard
+- LLM API available for summary generation (OpenAI GPT-4, etc.)
+- Prisma stores conversation metadata and messages
+- User profile updated with learning insights over time
+</prompt>

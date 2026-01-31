@@ -1,0 +1,73 @@
+<prompt>
+You are tasked with creating the Next.js App Router root layout with TailwindCSS, font optimization, metadata, and session provider wrapper. This layout provides the app shell with navigation and global styles, serving as the foundation for all pages in the learning assistant application.
+
+Requirements
+1. Create root layout component with proper HTML structure
+2. Configure TailwindCSS and global styles
+3. Implement font optimization with Next.js font loader
+4. Set application metadata (title, description, icons)
+5. Wrap application in NextAuth SessionProvider
+6. Add viewport and theme color meta tags
+7. Ensure proper TypeScript typing for layout props
+
+Dependencies
+<auth_config>
+  <include>src/auth_config_example.ts</include>
+</auth_config>
+
+<nextjs_layouts>
+  <web>https://nextjs.org/docs/app/building-your-application/routing/layouts-and-templates</web>
+</nextjs_layouts>
+
+<nextjs_layout_api>
+  <web>https://nextjs.org/docs/app/api-reference/file-conventions/layout</web>
+</nextjs_layout_api>
+
+Instructions
+- Export default function RootLayout({ children }: { children: React.ReactNode })
+- Return HTML structure with <html> and <body> tags
+- Import and apply fonts using next/font (e.g., Inter from Google Fonts)
+- Import global CSS: import './globals.css'
+- Wrap children in SessionProvider from next-auth/react
+- Set lang="en" on html tag
+- Apply font className to body tag
+- Configure metadata export for SEO:
+  export const metadata: Metadata = {
+    title: 'Learning Assistant - AI-Powered Conversations',
+    description: 'Voice-enabled AI learning assistant powered by ElevenLabs',
+    icons: { icon: '/favicon.ico' }
+  }
+- Add viewport configuration for responsive design
+- Use TailwindCSS utility classes for base styling
+- Ensure server component by default (SessionProvider should be in a client component wrapper if needed)
+
+Component structure:
+```typescript
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body className={inter.className}>
+        <SessionProvider>
+          {children}
+        </SessionProvider>
+      </body>
+    </html>
+  )
+}
+```
+
+Note: SessionProvider requires 'use client', so create a separate Providers component or use it appropriately.
+
+Deliverable
+- Production-ready TypeScript React component at app/layout.tsx
+- Root layout with global styles and session management
+- Optimized fonts and metadata for performance and SEO
+
+Implementation assumptions
+- Using Next.js 14 App Router with TypeScript
+- TailwindCSS configured in tailwind.config.js
+- Global styles in app/globals.css
+- NextAuth SessionProvider manages authentication state
+- Inter font from Google Fonts (or custom font)
+- Layout applies to all pages in the application
+</prompt>

@@ -1,0 +1,75 @@
+<prompt>
+You are tasked with creating a TypeScript wrapper around the ElevenLabs SDK providing methods for creating agent sessions, uploading documents to knowledge base, and managing conversation history. This module serves as the primary interface to ElevenLabs conversational AI capabilities, abstracting the SDK complexity and providing type-safe methods for the application.
+
+Requirements
+1. Initialize ElevenLabs client with API key from environment
+2. Implement createAgentSession for starting new conversations
+3. Implement uploadToKnowledgeBase for document indexing
+4. Implement getConversationHistory for retrieving past chats
+5. Handle WebSocket URL generation for real-time voice communication
+6. Manage user-specific agent configurations and namespaces
+7. Provide proper error handling and retry logic
+
+Dependencies
+<types>
+  <include>src/types_example.ts</include>
+</types>
+
+<env_config>
+  <include>src/env_config_example.ts</include>
+</env_config>
+
+<elevenlabs_websocket_api>
+  <web>https://elevenlabs.io/docs/api-reference/websockets</web>
+</elevenlabs_websocket_api>
+
+<elevenlabs_js_sdk>
+  <web>https://www.npmjs.com/package/@11labs/client</web>
+</elevenlabs_js_sdk>
+
+<elevenlabs_tts_websocket>
+  <web>https://elevenlabs.io/docs/api-reference/text-to-speech-websockets</web>
+</elevenlabs_tts_websocket>
+
+<elevenlabs_conversational_ai>
+  <web>https://elevenlabs.io/docs/conversational-ai/docs/introduction</web>
+</elevenlabs_conversational_ai>
+
+Instructions
+- Import ElevenLabsClient from '@11labs/client'
+- Initialize client with env.ELEVENLABS_API_KEY
+- Implement createAgentSession(userId: string, systemPrompt: string): Promise<SessionResponse>
+- Return WebSocket URL, session ID, and agent ID
+- Use conversational AI API to create signed conversation URLs
+- Implement uploadToKnowledgeBase(userId: string, document: DocumentInput): Promise<DocumentResponse>
+- Use knowledge base API with user namespace for document isolation
+- Implement getConversationHistory(userId: string): Promise<Conversation[]>
+- Fetch user's past conversations from ElevenLabs API
+- Handle API errors with try-catch and descriptive error messages
+- Add retry logic for transient failures (3 retries with exponential backoff)
+- Use TypeScript types from lib/types.ts for all responses
+
+Function signatures:
+```typescript
+export async function createAgentSession(userId: string, systemPrompt: string): Promise<SessionResponse>
+export async function uploadToKnowledgeBase(userId: string, document: DocumentInput): Promise<DocumentResponse>
+export async function getConversationHistory(userId: string): Promise<Conversation[]>
+```
+
+Types:
+- SessionResponse: { websocket_url: string, session_id: string, agent_id: string }
+- DocumentInput: { name: string, content: string, category: string }
+- DocumentResponse: { document_id: string, status: string }
+
+Deliverable
+- Production-ready TypeScript module at lib/elevenlabs.ts
+- Type-safe wrapper around ElevenLabs SDK
+- Handles authentication, error handling, and retries
+
+Implementation assumptions
+- Using Next.js 14 App Router with TypeScript
+- ElevenLabs SDK installed via npm: @11labs/client
+- ELEVENLABS_API_KEY configured in environment
+- Module used in API routes for server-side operations
+- WebSocket URLs returned to frontend for client-side connection
+</prompt>

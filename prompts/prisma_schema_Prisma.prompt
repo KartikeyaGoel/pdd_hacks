@@ -1,0 +1,46 @@
+<prompt>
+You are tasked with creating the Prisma database schema for a conversational AI learning assistant. This schema defines core data models for users, conversations, and documents with proper relationships and indexes for optimal query performance. The schema serves as the foundation of the application's data layer, ensuring data integrity and efficient access patterns.
+
+Requirements
+1. Define User, Conversation, Document, and ConversationMessage models with appropriate field types
+2. Implement proper relationships between models (one-to-many, many-to-many)
+3. Add database indexes on frequently queried fields (userId, createdAt, conversationId)
+4. Configure PostgreSQL as the database provider with connection pooling
+5. Use appropriate field types for timestamps, JSON data, and text content
+6. Implement soft delete patterns where appropriate
+7. Add unique constraints on critical fields (email, document identifiers)
+
+Dependencies
+<prisma_postgres_setup>
+  <web>https://www.prisma.io/docs/getting-started/setup-prisma/add-to-existing-project/relational-databases-typescript-postgresql</web>
+</prisma_postgres_setup>
+
+<vercel_postgres_prisma>
+  <web>https://vercel.com/docs/storage/vercel-postgres/using-an-orm#prisma</web>
+</vercel_postgres_prisma>
+
+Instructions
+- Use PostgreSQL as the database provider with `postgresql` datasource
+- Define User model with id, email, name, createdAt, updatedAt, and profile fields
+- Define Conversation model with id, userId, title, summary, startedAt, endedAt, duration
+- Define Document model with id, userId, name, category, contentType, uploadedAt, elevenLabsDocId
+- Define ConversationMessage model with id, conversationId, role, content, timestamp
+- Add relations: User has many Conversations and Documents; Conversation has many Messages
+- Create indexes on userId for all models, createdAt for Conversations, conversationId for Messages
+- Use DateTime for all timestamp fields with @default(now()) where appropriate
+- Use String for text fields, Int for numeric fields, Json for structured data
+- Add @@map to customize table names if needed for clarity
+- Include comments using /// syntax to document model purpose
+
+Deliverable
+- Production-ready Prisma schema at prisma/schema.prisma
+- Schema should be ready for `npx prisma migrate dev` and `npx prisma generate`
+- All models properly typed and indexed for optimal performance
+
+Implementation assumptions
+- Using PostgreSQL database (Vercel Postgres in production)
+- DATABASE_URL environment variable will be configured
+- Prisma Client will be generated and used throughout the application
+- Schema supports soft deletes via deletedAt timestamp fields
+- All IDs use default UUID generation (@default(uuid()))
+</prompt>

@@ -1,0 +1,65 @@
+<prompt>
+You are tasked with creating NextAuth v5 configuration with JWT strategy, session callbacks, and user profile handling. This module integrates with Prisma adapter for user persistence and provides authentication utilities for the entire application. It ensures secure user authentication and session management throughout the learning assistant.
+
+Requirements
+1. Configure NextAuth v5 with JWT strategy for serverless compatibility
+2. Integrate Prisma adapter for user persistence in PostgreSQL
+3. Implement session callbacks to include user profile data
+4. Configure authentication providers (credentials, OAuth, etc.)
+5. Export auth utilities: auth, handlers, signIn, signOut
+6. Handle session refresh and expiration
+7. Secure configuration with proper secret management
+
+Dependencies
+<prisma_client>
+  <include>src/prisma_client_example.ts</include>
+</prisma_client>
+
+<types>
+  <include>src/types_example.ts</include>
+</types>
+
+<env_config>
+  <include>src/env_config_example.ts</include>
+</env_config>
+
+<nextauth_v5_migration>
+  <web>https://authjs.dev/getting-started/migrating-to-v5</web>
+</nextauth_v5_migration>
+
+<nextauth_nextjs_setup>
+  <web>https://authjs.dev/getting-started/installation?framework=next.js</web>
+</nextauth_nextjs_setup>
+
+Instructions
+- Import NextAuth from 'next-auth' and create auth configuration
+- Use Prisma adapter: import { PrismaAdapter } from '@auth/prisma-adapter'
+- Configure JWT strategy with session: { strategy: 'jwt' }
+- Set secret from env.NEXTAUTH_SECRET
+- Implement callbacks.jwt to add user data to token
+- Implement callbacks.session to include user profile in session object
+- Configure at least one provider (CredentialsProvider or OAuth)
+- Export authOptions configuration object
+- Export auth, handlers, signIn, signOut from NextAuth(authOptions)
+- Add TypeScript module augmentation for Session and JWT types
+- Handle edge runtime compatibility
+- Configure session maxAge and update intervals
+
+Function signatures:
+```typescript
+export const authOptions: NextAuthConfig
+export const { auth, handlers, signIn, signOut }
+```
+
+Deliverable
+- Production-ready TypeScript module at lib/auth.ts
+- Auth handlers ready for API route integration
+- Session management with user profile data
+
+Implementation assumptions
+- Using Next.js 14 App Router with TypeScript
+- Prisma adapter connects authentication to database
+- JWT strategy for serverless deployment on Vercel
+- Session includes user ID, email, name, and profile data
+- Auth API routes will be created at app/api/auth/[...nextauth]/route.ts
+</prompt>

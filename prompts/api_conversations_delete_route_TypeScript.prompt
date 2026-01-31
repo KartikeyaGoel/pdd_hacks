@@ -1,0 +1,73 @@
+<prompt>
+You are tasked with creating an API route that soft-deletes conversations from database and optionally removes from ElevenLabs history. This route allows users to manage their conversation history by removing unwanted sessions while preserving data integrity through soft deletion.
+
+Requirements
+1. Handle DELETE requests for specific conversation
+2. Authenticate user and verify conversation ownership
+3. Implement soft delete by setting deletedAt timestamp
+4. Optionally remove conversation from ElevenLabs history
+5. Preserve related messages for audit purposes
+6. Return success response with deletion confirmation
+7. Handle errors with appropriate status codes
+
+Dependencies
+<prisma_client>
+  <include>src/prisma_client_example.ts</include>
+</prisma_client>
+
+<types>
+  <include>src/types_example.ts</include>
+</types>
+
+<auth_config>
+  <include>src/auth_config_example.ts</include>
+</auth_config>
+
+Instructions
+- Export async function DELETE(request: NextRequest, { params }: { params: { id: string }})
+- Extract conversation ID from params.id
+- Check authentication with await auth()
+- Return 401 if not authenticated
+- Fetch conversation: await prisma.conversation.findUnique({ where: { id }})
+- Verify conversation.userId matches authenticated user
+- Return 403 if unauthorized access attempt
+- Return 404 if conversation not found or already deleted
+- Soft delete conversation:
+  await prisma.conversation.update({
+    where: { id },
+    data: { deletedAt: new Date() }
+  })
+- Do NOT delete related messages (preserve for data integrity)
+- Optionally call ElevenLabs API to remove from their history (if applicable)
+- Return JSON: { success: true }
+- Handle errors with try-catch, return 500 for server errors
+- Log deletion for audit trail
+
+Endpoint specification:
+- Method: DELETE
+- Path: /api/conversations/[id]
+- Auth: Required (NextAuth session)
+- Path params: id (conversation UUID)
+- Response: { success: boolean }
+- Error responses: 401 (unauthorized), 403 (forbidden), 404 (not found), 500 (server error)
+
+Soft delete benefits:
+- Preserves data for analytics and debugging
+- Allows potential data recovery
+- Maintains referential integrity
+- Supports audit trails
+- Can be filtered out in queries with WHERE deletedAt IS NULL
+
+Deliverable
+- Production-ready TypeScript route handler at app/api/conversations/[id]/route.ts
+- Implements soft delete for conversation management
+- Verifies ownership before deletion
+
+Implementation assumptions
+- Using Next.js 14 App Router with TypeScript
+- NextAuth manages authentication
+- Prisma handles soft delete with deletedAt field
+- Messages remain in database for audit purposes
+- Deleted conversations filtered out in list queries
+- ElevenLabs history cleanup is optional (may not be supported)
+</prompt>

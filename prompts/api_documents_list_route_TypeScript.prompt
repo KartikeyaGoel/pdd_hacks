@@ -1,0 +1,140 @@
+% Purpose: Create API route for listing user's uploaded documents
+
+You are tasked with creating a Next.js API route that fetches a user's uploaded documents from the database with metadata (name, category, upload date, file size). The route supports filtering by category and sorting.
+
+% Context
+- **Framework**: Next.js 14+ with App Router
+- **Database**: Prisma ORM with PostgreSQL (via Vercel Postgres)
+- **Authentication**: NextAuth v5 (JWT-based)
+- **File Location**: app/api/documents/route.ts
+
+% Requirements
+
+1. **Authentication**
+   - Use NextAuth's `auth()` helper to get the current session
+   - Return 401 Unauthorized if no session exists
+   - Extract userId from session for database queries
+
+2. **Database Query**
+   - Fetch documents from Prisma where `userId` matches current user
+   - Include metadata: id, name, category, uploadedAt, fileSize, mimeType
+   - Support filtering by category via query parameter: `?category=notes`
+   - Support sorting via query parameter: `?sort=date` (date, name, size)
+   - Default sort: most recent first (uploadedAt DESC)
+
+3. **Query Parameters**
+   - `category` (optional): Filter by document category
+   - `sort` (optional): Sort field - "date" | "name" | "size"
+   - `order` (optional): Sort order - "asc" | "desc" (default: desc)
+   - `limit` (optional): Max documents to return (default: 50, max: 100)
+   - `offset` (optional): Pagination offset (default: 0)
+
+4. **Response Format**
+   ```typescript
+   {
+     documents: Array<{
+       id: string
+       name: string
+       category: string
+       uploadedAt: string (ISO 8601)
+       fileSize: number (bytes)
+       mimeType: string
+     }>
+     total: number (total count matching filters)
+   }
+   ```
+
+5. **Error Handling**
+   - 401 if not authenticated
+   - 400 for invalid query parameters
+   - 500 for database errors with descriptive message
+
+% Implementation Guidelines
+
+**Authentication Pattern:**
+```typescript
+import { auth } from "@/lib/auth"
+import { NextResponse } from "next/server"
+
+export async function GET(request: Request) {
+  const session = await auth()
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+  // ...
+}
+```
+
+**Query Parameter Parsing:**
+```typescript
+const { searchParams } = new URL(request.url)
+const category = searchParams.get("category")
+const sort = searchParams.get("sort") || "date"
+const order = searchParams.get("order") || "desc"
+const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100)
+const offset = parseInt(searchParams.get("offset") || "0")
+```
+
+**Prisma Query with Filters:**
+```typescript
+import { prisma } from "@/lib/prisma"
+
+const where = {
+  userId: session.user.id,
+  ...(category && { category }),
+}
+
+const orderBy =
+  sort === "name" ? { name: order } :
+  sort === "size" ? { fileSize: order } :
+  { uploadedAt: order }
+
+const [documents, total] = await Promise.all([
+  prisma.document.findMany({
+    where,
+    orderBy,
+    take: limit,
+    skip: offset,
+    select: {
+      id: true,
+      name: true,
+      category: true,
+      uploadedAt: true,
+      fileSize: true,
+      mimeType: true,
+    },
+  }),
+  prisma.document.count({ where }),
+])
+```
+
+**Response:**
+```typescript
+return NextResponse.json({ documents, total })
+```
+
+% Database Schema Reference
+Assume Document model in Prisma:
+```prisma
+model Document {
+  id          String   @id @default(cuid())
+  name        String
+  category    String
+  userId      String
+  mimeType    String
+  fileSize    Int
+  uploadedAt  DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+}
+```
+
+% Context URLs Reference
+- Next.js Route Handlers: https://nextjs.org/docs/app/building-your-application/routing/route-handlers
+
+% Output
+Create a production-ready Next.js API route file that:
+1. Implements GET /api/documents with authentication
+2. Supports category filtering and flexible sorting
+3. Returns paginated document list with total count
+4. Includes proper error handling for auth and validation
+5. Uses TypeScript with proper typing for query params and response

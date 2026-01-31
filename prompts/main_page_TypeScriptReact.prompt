@@ -1,0 +1,74 @@
+<prompt>
+You are tasked with creating the default landing page displaying VoiceInterface component with Sidebar navigation. This page serves as the main entry point for the learning assistant, providing immediate access to voice conversations with the AI agent.
+
+Requirements
+1. Create main page component as server component for optimal performance
+2. Display Sidebar for navigation
+3. Render VoiceInterface as the primary content
+4. Implement responsive layout (sidebar + main content area)
+5. Add page metadata for SEO
+6. Handle authentication state (redirect if not logged in)
+7. Provide clean, centered layout for voice interface
+
+Dependencies
+<root_layout>
+  <include>src/root_layout_example.ts</include>
+</root_layout>
+
+<sidebar_component>
+  <include>src/sidebar_component_example.ts</include>
+</sidebar_component>
+
+<voice_interface_component>
+  <include>src/voice_interface_component_example.ts</include>
+</voice_interface_component>
+
+Instructions
+- Export default async function Home() (server component by default)
+- Import Sidebar and VoiceInterface components
+- Optionally check authentication with auth() from lib/auth.ts
+- Redirect to /login if not authenticated (if authentication required)
+- Render layout with Sidebar and main content area
+- Use CSS Grid or Flexbox for layout:
+  - Sidebar: fixed width (64px or 240px)
+  - Main content: flex-1, centered VoiceInterface
+- Add responsive behavior (hide sidebar on mobile or make it collapsible)
+- Center VoiceInterface in main content area
+- Use TailwindCSS for layout and spacing
+- Set page metadata:
+  export const metadata: Metadata = {
+    title: 'Voice Conversation - Learning Assistant',
+    description: 'Start a voice conversation with your AI learning assistant'
+  }
+
+Page structure:
+```tsx
+export default async function Home() {
+  // Optional: check auth
+  // const session = await auth()
+  // if (!session) redirect('/login')
+
+  return (
+    <div className="flex h-screen">
+      <Sidebar />
+      <main className="flex-1 flex items-center justify-center">
+        <VoiceInterface />
+      </main>
+    </div>
+  )
+}
+```
+
+Deliverable
+- Production-ready TypeScript React page at app/page.tsx
+- Server component with Sidebar and VoiceInterface
+- Responsive layout for optimal user experience
+
+Implementation assumptions
+- Using Next.js 14 App Router with TypeScript
+- Server component by default (VoiceInterface is client component)
+- NextAuth manages authentication (optional redirect)
+- TailwindCSS for layout styling
+- Page route is / (homepage)
+- Main focus is on VoiceInterface component
+</prompt>

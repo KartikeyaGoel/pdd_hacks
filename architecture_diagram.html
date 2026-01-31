@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Montessori Initial PRD</title>
+<script type="module">
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+mermaid.initialize({startOnLoad:true,theme:'default'});
+window.addEventListener('load', () => {
+    const moduleData = {"prisma_schema_Prisma": {"filename": "prisma_schema_Prisma.prompt", "priority": 1, "description": "Prisma schema defining User, Conversation, Document, and ConversationMessage models with proper relationships and indexes for optimal query performance.", "dependencies": [], "tags": ["database", "prisma", "schema"], "filepath": "prisma/schema.prisma"}, "prisma_client_TypeScript": {"filename": "prisma_client_TypeScript.prompt", "priority": 2, "description": "TypeScript module exporting singleton Prisma client instance with connection pooling. Prevents multiple instances in development and handles edge function compatibility.", "dependencies": ["prisma_schema_Prisma.prompt"], "tags": ["database", "prisma", "client"], "filepath": "lib/prisma.ts"}, "types_TypeScript": {"filename": "types_TypeScript.prompt", "priority": 3, "description": "Type definitions for User, Conversation, Document, ConversationSummary, and API request/response types. Ensures type safety across frontend and backend.", "dependencies": [], "tags": ["types", "shared"], "filepath": "lib/types.ts"}, "env_config_TypeScript": {"filename": "env_config_TypeScript.prompt", "priority": 4, "description": "Centralized environment variable validation using Zod. Exports typed env object with ElevenLabs, NextAuth, database, and external tool API keys.", "dependencies": [], "tags": ["config", "environment"], "filepath": "lib/env.ts"}, "auth_config_TypeScript": {"filename": "auth_config_TypeScript.prompt", "priority": 5, "description": "NextAuth v5 configuration with JWT strategy, session callbacks, and user profile handling. Integrates with Prisma adapter for user persistence.", "dependencies": ["prisma_client_TypeScript.prompt", "types_TypeScript.prompt", "env_config_TypeScript.prompt"], "tags": ["auth", "nextauth"], "filepath": "lib/auth.ts"}, "api_auth_nextauth_route_TypeScript": {"filename": "api_auth_nextauth_route_TypeScript.prompt", "priority": 6, "description": "Next.js API route exposing NextAuth v5 authentication endpoints (sign-in, sign-out, session, providers). Uses handlers exported from lib/auth.ts.", "dependencies": ["auth_config_TypeScript.prompt"], "tags": ["backend", "api", "auth"], "filepath": "app/api/auth/[...nextauth]/route.ts"}, "file_processing_TypeScript": {"filename": "file_processing_TypeScript.prompt", "priority": 7, "description": "Utilities for processing PDF, DOCX, TXT, MD, and image files. Exports functions for text extraction with OCR support for images.", "dependencies": ["types_TypeScript.prompt"], "tags": ["files", "processing", "ocr"], "filepath": "lib/file-processing.ts"}, "elevenlabs_client_TypeScript": {"filename": "elevenlabs_client_TypeScript.prompt", "priority": 8, "description": "TypeScript wrapper around ElevenLabs SDK providing methods for creating agent sessions, uploading documents to knowledge base, and managing conversation history.", "dependencies": ["types_TypeScript.prompt", "env_config_TypeScript.prompt"], "tags": ["elevenlabs", "ai", "sdk"], "filepath": "lib/elevenlabs.ts"}, "audio_utils_TypeScript": {"filename": "audio_utils_TypeScript.prompt", "priority": 9, "description": "Client-side utilities for capturing microphone input, managing audio streams, and playing TTS audio responses with proper cleanup and error handling.", "dependencies": [], "tags": ["audio", "webrtc", "browser"], "filepath": "lib/audio-utils.ts"}, "app_store_TypeScript": {"filename": "app_store_TypeScript.prompt", "priority": 10, "description": "Global state management for conversation status, WebSocket connection, document uploads, and conversation history. Provides actions for all state mutations.", "dependencies": ["types_TypeScript.prompt"], "tags": ["state", "zustand", "store"], "filepath": "lib/store.ts"}, "api_client_TypeScript": {"filename": "api_client_TypeScript.prompt", "priority": 11, "description": "Fetch wrapper providing typed methods for all API endpoints with automatic error handling, request/response transformation, and authentication header injection.", "dependencies": ["types_TypeScript.prompt"], "tags": ["api", "client", "fetch"], "filepath": "lib/api-client.ts"}, "api_upload_document_route_TypeScript": {"filename": "api_upload_document_route_TypeScript.prompt", "priority": 12, "description": "Handles multipart file uploads, validates file type and size, extracts text content, and forwards to ElevenLabs Knowledge Base API with user namespace.", "dependencies": ["prisma_client_TypeScript.prompt", "types_TypeScript.prompt", "auth_config_TypeScript.prompt", "file_processing_TypeScript.prompt", "elevenlabs_client_TypeScript.prompt"], "tags": ["backend", "api", "upload"], "filepath": "app/api/upload-document/route.ts"}, "api_documents_list_route_TypeScript": {"filename": "api_documents_list_route_TypeScript.prompt", "priority": 13, "description": "Fetches user's uploaded documents from database with metadata (name, category, upload date, file size). Supports filtering by category and sorting.", "dependencies": ["prisma_client_TypeScript.prompt", "types_TypeScript.prompt", "auth_config_TypeScript.prompt"], "tags": ["backend", "api", "documents"], "filepath": "app/api/documents/route.ts"}, "api_agent_initialize_route_TypeScript": {"filename": "api_agent_initialize_route_TypeScript.prompt", "priority": 14, "description": "Creates ElevenLabs agent session with custom system prompt including user profile and learning preferences. Returns WebSocket URL for frontend connection.", "dependencies": ["prisma_client_TypeScript.prompt", "types_TypeScript.prompt", "auth_config_TypeScript.prompt", "elevenlabs_client_TypeScript.prompt"], "tags": ["backend", "api", "agent"], "filepath": "app/api/agent/initialize/route.ts"}, "api_conversations_list_route_TypeScript": {"filename": "api_conversations_list_route_TypeScript.prompt", "priority": 15, "description": "Fetches conversation summaries from database and ElevenLabs API, sorted by recency with pagination support.", "dependencies": ["prisma_client_TypeScript.prompt", "types_TypeScript.prompt", "auth_config_TypeScript.prompt", "elevenlabs_client_TypeScript.prompt"], "tags": ["backend", "api", "conversations"], "filepath": "app/api/conversations/route.ts"}, "api_conversations_continue_route_TypeScript": {"filename": "api_conversations_continue_route_TypeScript.prompt", "priority": 16, "description": "Loads conversation transcript and summary, creates new agent session with context injected into system prompt for seamless continuation.", "dependencies": ["prisma_client_TypeScript.prompt", "types_TypeScript.prompt", "auth_config_TypeScript.prompt", "elevenlabs_client_TypeScript.prompt"], "tags": ["backend", "api", "conversations"], "filepath": "app/api/conversations/[id]/continue/route.ts"}, "api_conversations_delete_route_TypeScript": {"filename": "api_conversations_delete_route_TypeScript.prompt", "priority": 17, "description": "Soft-deletes conversation from database and optionally removes from ElevenLabs history.", "dependencies": ["prisma_client_TypeScript.prompt", "types_TypeScript.prompt", "auth_config_TypeScript.prompt"], "tags": ["backend", "api", "conversations"], "filepath": "app/api/conversations/[id]/route.ts"}, "api_webhook_conversation_end_route_TypeScript": {"filename": "api_webhook_conversation_end_route_TypeScript.prompt", "priority": 18, "description": "Receives conversation transcript from ElevenLabs, generates summary via LLM, extracts topics, updates user profile, and stores metadata in database.", "dependencies": ["prisma_client_TypeScript.prompt", "types_TypeScript.prompt", "elevenlabs_client_TypeScript.prompt"], "tags": ["backend", "api", "webhook"], "filepath": "app/api/webhook/conversation-end/route.ts"}, "api_webhook_tool_execution_route_TypeScript": {"filename": "api_webhook_tool_execution_route_TypeScript.prompt", "priority": 19, "description": "Proxies tool execution requests from ElevenLabs agent to external services (Toolhouse.ai for calendar/reminders, rtrvr.ai for web scraping).", "dependencies": ["types_TypeScript.prompt", "env_config_TypeScript.prompt"], "tags": ["backend", "api", "webhook", "tools"], "filepath": "app/api/webhook/tool-execution/route.ts"}, "root_layout_TypeScriptReact": {"filename": "root_layout_TypeScriptReact.prompt", "priority": 20, "description": "Next.js App Router root layout with TailwindCSS, font optimization, metadata, and session provider wrapper.", "dependencies": ["auth_config_TypeScript.prompt"], "tags": ["frontend", "layout", "nextjs"], "filepath": "app/layout.tsx"}, "sidebar_component_TypeScriptReact": {"filename": "sidebar_component_TypeScriptReact.prompt", "priority": 21, "description": "Navigation sidebar with icons for Main conversation, Upload documents, and Past Chats pages. Highlights active route.", "dependencies": ["types_TypeScript.prompt"], "tags": ["frontend", "component", "navigation"], "filepath": "components/Sidebar.tsx"}, "voice_interface_component_TypeScriptReact": {"filename": "voice_interface_component_TypeScriptReact.prompt", "priority": 22, "description": "Main conversation UI with large play button, pulsing animation during agent speech, microphone controls, text input toggle, and live transcript display.", "dependencies": ["types_TypeScript.prompt", "app_store_TypeScript.prompt", "api_client_TypeScript.prompt", "audio_utils_TypeScript.prompt"], "tags": ["frontend", "component", "voice"], "filepath": "components/VoiceInterface.tsx"}, "file_uploader_component_TypeScriptReact": {"filename": "file_uploader_component_TypeScriptReact.prompt", "priority": 23, "description": "Document upload interface with drag-drop zone, file type validation, category selection, upload progress, and hierarchical folder display.", "dependencies": ["types_TypeScript.prompt", "app_store_TypeScript.prompt", "api_client_TypeScript.prompt"], "tags": ["frontend", "component", "upload"], "filepath": "components/FileUploader.tsx"}, "conversation_list_component_TypeScriptReact": {"filename": "conversation_list_component_TypeScriptReact.prompt", "priority": 24, "description": "Grid of conversation cards sorted by recency, showing date, duration, topic, summary, and Continue/Delete actions.", "dependencies": ["types_TypeScript.prompt", "app_store_TypeScript.prompt", "api_client_TypeScript.prompt"], "tags": ["frontend", "component", "history"], "filepath": "components/ConversationList.tsx"}, "main_page_TypeScriptReact": {"filename": "main_page_TypeScriptReact.prompt", "priority": 25, "description": "Default landing page displaying VoiceInterface component with Sidebar navigation. Server component for optimal performance.", "dependencies": ["root_layout_TypeScriptReact.prompt", "sidebar_component_TypeScriptReact.prompt", "voice_interface_component_TypeScriptReact.prompt"], "tags": ["frontend", "page", "nextjs"], "filepath": "app/page.tsx"}, "upload_page_TypeScriptReact": {"filename": "upload_page_TypeScriptReact.prompt", "priority": 26, "description": "Page with FileUploader component, document list with folder organization, and category management.", "dependencies": ["root_layout_TypeScriptReact.prompt", "sidebar_component_TypeScriptReact.prompt", "file_uploader_component_TypeScriptReact.prompt"], "tags": ["frontend", "page", "nextjs"], "filepath": "app/upload/page.tsx"}, "history_page_TypeScriptReact": {"filename": "history_page_TypeScriptReact.prompt", "priority": 27, "description": "Page with ConversationList component showing all past conversations with search and filter capabilities.", "dependencies": ["root_layout_TypeScriptReact.prompt", "sidebar_component_TypeScriptReact.prompt", "conversation_list_component_TypeScriptReact.prompt"], "tags": ["frontend", "page", "nextjs"], "filepath": "app/history/page.tsx"}};
+    
+    // Add hover listeners to all nodes
+    setTimeout(() => {
+        const nodes = document.querySelectorAll('.node');
+        nodes.forEach(node => {
+            const text = node.querySelector('.nodeLabel');
+            if (!text) return;
+            
+            const nodeText = text.textContent.trim();
+            const moduleId = nodeText.split(' ')[0];
+            const data = moduleData[moduleId];
+            
+            if (data) {
+                node.style.cursor = 'pointer';
+                
+                node.addEventListener('mouseenter', (e) => {
+                    showTooltip(e, data);
+                });
+                
+                node.addEventListener('mouseleave', () => {
+                    hideTooltip();
+                });
+            }
+        });
+    }, 500);
+});
+function showTooltip(e, data) {
+    hideTooltip();
+    
+    const tooltip = document.createElement('div');
+    tooltip.id = 'module-tooltip';
+    tooltip.innerHTML = `
+        <div style="font-weight:600;margin-bottom:8px;font-size:1.1em;">${data.filename}</div>
+        <div style="margin-bottom:6px;"><strong>Priority:</strong> ${data.priority}</div>
+        <div style="margin-bottom:6px;"><strong>Path:</strong> ${data.filepath}</div>
+        <div style="margin-bottom:6px;"><strong>Tags:</strong> ${data.tags.join(', ')}</div>
+        <div style="margin-bottom:6px;"><strong>Dependencies:</strong> ${data.dependencies.length > 0 ? data.dependencies.join(', ') : 'None'}</div>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px solid #ddd;font-size:0.9em;color:#444;">${data.description}</div>
+    `;
+    
+    document.body.appendChild(tooltip);
+    
+    const rect = e.target.closest('.node').getBoundingClientRect();
+    tooltip.style.left = rect.right + 10 + 'px';
+    tooltip.style.top = rect.top + window.scrollY + 'px';
+}
+function hideTooltip() {
+    const existing = document.getElementById('module-tooltip');
+    if (existing) existing.remove();
+}
+</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,sans-serif;background:#fff;color:#000;padding:2rem;max-width:1400px;margin:0 auto}
+h1{font-size:2rem;font-weight:600;margin-bottom:2rem;padding-bottom:1rem;border-bottom:2px solid #000}
+.diagram{border:1px solid #000;padding:2rem;margin:2rem 0;overflow-x:auto;position:relative}
+.mermaid{display:flex;justify-content:center}
+#module-tooltip{
+    position:absolute;
+    background:#fff;
+    border:2px solid #000;
+    padding:1rem;
+    max-width:400px;
+    z-index:1000;
+    box-shadow:4px 4px 0 rgba(0,0,0,0.1);
+    font-size:0.9rem;
+    line-height:1.5;
+}
+.node{transition:opacity 0.2s}
+.node:hover{opacity:0.8}
+</style></head><body>
+<h1>Montessori Initial PRD</h1>
+<div class="diagram"><pre class="mermaid">flowchart TB
+        PRD["Montessori Initial PRD"]
+    
+    subgraph Frontend
+        root_layout_TypeScriptReact["root_layout_TypeScriptReact (20)"]
+        sidebar_component_TypeScriptReact["sidebar_component_TypeScriptReact (21)"]
+        voice_interface_component_TypeScriptReact["voice_interface_component_TypeScriptReact (22)"]
+        file_uploader_component_TypeScriptReact["file_uploader_component_TypeScriptReact (23)"]
+        conversation_list_component_TypeScriptReact["conversation_list_component_TypeScriptReact (24)"]
+        main_page_TypeScriptReact["main_page_TypeScriptReact (25)"]
+        upload_page_TypeScriptReact["upload_page_TypeScriptReact (26)"]
+        history_page_TypeScriptReact["history_page_TypeScriptReact (27)"]
+    end
+    
+    subgraph Backend
+        prisma_schema_Prisma["prisma_schema_Prisma (1)"]
+        prisma_client_TypeScript["prisma_client_TypeScript (2)"]
+        api_auth_nextauth_route_TypeScript["api_auth_nextauth_route_TypeScript (6)"]
+        api_client_TypeScript["api_client_TypeScript (11)"]
+        api_upload_document_route_TypeScript["api_upload_document_route_TypeScript (12)"]
+        api_documents_list_route_TypeScript["api_documents_list_route_TypeScript (13)"]
+        api_agent_initialize_route_TypeScript["api_agent_initialize_route_TypeScript (14)"]
+        api_conversations_list_route_TypeScript["api_conversations_list_route_TypeScript (15)"]
+        api_conversations_continue_route_TypeScript["api_conversations_continue_route_TypeScript (16)"]
+        api_conversations_delete_route_TypeScript["api_conversations_delete_route_TypeScript (17)"]
+        api_webhook_conversation_end_route_TypeScript["api_webhook_conversation_end_route_TypeScript (18)"]
+        api_webhook_tool_execution_route_TypeScript["api_webhook_tool_execution_route_TypeScript (19)"]
+    end
+    
+    subgraph Shared
+        types_TypeScript["types_TypeScript (3)"]
+        env_config_TypeScript["env_config_TypeScript (4)"]
+        auth_config_TypeScript["auth_config_TypeScript (5)"]
+        file_processing_TypeScript["file_processing_TypeScript (7)"]
+        elevenlabs_client_TypeScript["elevenlabs_client_TypeScript (8)"]
+        audio_utils_TypeScript["audio_utils_TypeScript (9)"]
+        app_store_TypeScript["app_store_TypeScript (10)"]
+    end
+    
+    PRD --> Frontend
+    PRD --> Backend
+
+    prisma_client_TypeScript -->|uses| prisma_schema_Prisma
+    auth_config_TypeScript -->|uses| prisma_client_TypeScript
+    auth_config_TypeScript -->|uses| types_TypeScript
+    auth_config_TypeScript -->|uses| env_config_TypeScript
+    api_auth_nextauth_route_TypeScript -->|uses| auth_config_TypeScript
+    file_processing_TypeScript -->|uses| types_TypeScript
+    elevenlabs_client_TypeScript -->|uses| types_TypeScript
+    elevenlabs_client_TypeScript -->|uses| env_config_TypeScript
+    app_store_TypeScript -->|uses| types_TypeScript
+    api_client_TypeScript -->|uses| types_TypeScript
+    api_upload_document_route_TypeScript -->|uses| prisma_client_TypeScript
+    api_upload_document_route_TypeScript -->|uses| types_TypeScript
+    api_upload_document_route_TypeScript -->|uses| auth_config_TypeScript
+    api_upload_document_route_TypeScript -->|uses| file_processing_TypeScript
+    api_upload_document_route_TypeScript -->|uses| elevenlabs_client_TypeScript
+    api_documents_list_route_TypeScript -->|uses| prisma_client_TypeScript
+    api_documents_list_route_TypeScript -->|uses| types_TypeScript
+    api_documents_list_route_TypeScript -->|uses| auth_config_TypeScript
+    api_agent_initialize_route_TypeScript -->|uses| prisma_client_TypeScript
+    api_agent_initialize_route_TypeScript -->|uses| types_TypeScript
+    api_agent_initialize_route_TypeScript -->|uses| auth_config_TypeScript
+    api_agent_initialize_route_TypeScript -->|uses| elevenlabs_client_TypeScript
+    api_conversations_list_route_TypeScript -->|uses| prisma_client_TypeScript
+    api_conversations_list_route_TypeScript -->|uses| types_TypeScript
+    api_conversations_list_route_TypeScript -->|uses| auth_config_TypeScript
+    api_conversations_list_route_TypeScript -->|uses| elevenlabs_client_TypeScript
+    api_conversations_continue_route_TypeScript -->|uses| prisma_client_TypeScript
+    api_conversations_continue_route_TypeScript -->|uses| types_TypeScript
+    api_conversations_continue_route_TypeScript -->|uses| auth_config_TypeScript
+    api_conversations_continue_route_TypeScript -->|uses| elevenlabs_client_TypeScript
+    api_conversations_delete_route_TypeScript -->|uses| prisma_client_TypeScript
+    api_conversations_delete_route_TypeScript -->|uses| types_TypeScript
+    api_conversations_delete_route_TypeScript -->|uses| auth_config_TypeScript
+    api_webhook_conversation_end_route_TypeScript -->|uses| prisma_client_TypeScript
+    api_webhook_conversation_end_route_TypeScript -->|uses| types_TypeScript
+    api_webhook_conversation_end_route_TypeScript -->|uses| elevenlabs_client_TypeScript
+    api_webhook_tool_execution_route_TypeScript -->|uses| types_TypeScript
+    api_webhook_tool_execution_route_TypeScript -->|uses| env_config_TypeScript
+    root_layout_TypeScriptReact -->|uses| auth_config_TypeScript
+    sidebar_component_TypeScriptReact -->|uses| types_TypeScript
+    voice_interface_component_TypeScriptReact -->|uses| types_TypeScript
+    voice_interface_component_TypeScriptReact -->|uses| app_store_TypeScript
+    voice_interface_component_TypeScriptReact -->|uses| api_client_TypeScript
+    voice_interface_component_TypeScriptReact -->|uses| audio_utils_TypeScript
+    file_uploader_component_TypeScriptReact -->|uses| types_TypeScript
+    file_uploader_component_TypeScriptReact -->|uses| app_store_TypeScript
+    file_uploader_component_TypeScriptReact -->|uses| api_client_TypeScript
+    conversation_list_component_TypeScriptReact -->|uses| types_TypeScript
+    conversation_list_component_TypeScriptReact -->|uses| app_store_TypeScript
+    conversation_list_component_TypeScriptReact -->|uses| api_client_TypeScript
+    main_page_TypeScriptReact -->|uses| root_layout_TypeScriptReact
+    main_page_TypeScriptReact -->|uses| sidebar_component_TypeScriptReact
+    main_page_TypeScriptReact -->|uses| voice_interface_component_TypeScriptReact
+    upload_page_TypeScriptReact -->|uses| root_layout_TypeScriptReact
+    upload_page_TypeScriptReact -->|uses| sidebar_component_TypeScriptReact
+    upload_page_TypeScriptReact -->|uses| file_uploader_component_TypeScriptReact
+    history_page_TypeScriptReact -->|uses| root_layout_TypeScriptReact
+    history_page_TypeScriptReact -->|uses| sidebar_component_TypeScriptReact
+    history_page_TypeScriptReact -->|uses| conversation_list_component_TypeScriptReact
+    
+    classDef frontend fill:#FFF3E0,stroke:#F57C00,stroke-width:2px
+    classDef backend fill:#E3F2FD,stroke:#1976D2,stroke-width:2px
+    classDef shared fill:#E8F5E9,stroke:#388E3C,stroke-width:2px
+    classDef system fill:#E0E0E0,stroke:#616161,stroke-width:3px
+    
+    class root_layout_TypeScriptReact,sidebar_component_TypeScriptReact,voice_interface_component_TypeScriptReact,file_uploader_component_TypeScriptReact,conversation_list_component_TypeScriptReact,main_page_TypeScriptReact,upload_page_TypeScriptReact,history_page_TypeScriptReact frontend
+    class prisma_schema_Prisma,prisma_client_TypeScript,api_auth_nextauth_route_TypeScript,api_client_TypeScript,api_upload_document_route_TypeScript,api_documents_list_route_TypeScript,api_agent_initialize_route_TypeScript,api_conversations_list_route_TypeScript,api_conversations_continue_route_TypeScript,api_conversations_delete_route_TypeScript,api_webhook_conversation_end_route_TypeScript,api_webhook_tool_execution_route_TypeScript backend
+    class types_TypeScript,env_config_TypeScript,auth_config_TypeScript,file_processing_TypeScript,elevenlabs_client_TypeScript,audio_utils_TypeScript,app_store_TypeScript shared
+    class PRD system</pre></div>
+</body></html>

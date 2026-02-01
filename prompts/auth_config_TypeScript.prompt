@@ -31,6 +31,8 @@ Dependencies
   <web>https://authjs.dev/getting-started/installation?framework=next.js</web>
 </nextauth_nextjs_setup>
 
+<internal_example_modules></internal_example_modules>
+
 Instructions
 - Import NextAuth from 'next-auth' and create auth configuration
 - Use Prisma adapter: import { PrismaAdapter } from '@auth/prisma-adapter'

@@ -12,68 +12,21 @@ datasource db {
 
 /// User model - stores user profile and authentication data
 model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
-  name          String?
-  image         String?
-  emailVerified DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  deletedAt     DateTime?
+  id        String    @id @default(uuid())
+  email     String    @unique
+  name      String?
+  profile   Json?     // User profile data
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   // Relations
   conversations Conversation[]
   documents     Document[]
-  accounts      Account[]
-  sessions      Session[]
 
   @@index([email])
+  @@index([createdAt])
   @@map("users")
-}
-
-/// Account model - for OAuth providers (NextAuth)
-model Account {
-  id                String  @id @default(uuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-  @@index([userId])
-  @@map("accounts")
-}
-
-/// Session model - for session management (NextAuth)
-model Session {
-  id           String   @id @default(uuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@map("sessions")
-}
-
-/// VerificationToken model - for email verification (NextAuth)
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-  @@map("verification_tokens")
 }
 
 /// Conversation model - stores AI conversation sessions
@@ -85,7 +38,6 @@ model Conversation {
   startedAt DateTime  @default(now())
   endedAt   DateTime?
   duration  Int?      // Duration in seconds
-  metadata  Json?     // Additional conversation metadata
   deletedAt DateTime?
 
   // Relations
@@ -105,7 +57,6 @@ model ConversationMessage {
   role           String   // 'user', 'assistant', 'system'
   content        String   @db.Text
   timestamp      DateTime @default(now())
-  metadata       Json?    // Additional message metadata (audio duration, etc.)
 
   // Relations
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
@@ -117,18 +68,14 @@ model ConversationMessage {
 
 /// Document model - stores uploaded learning materials
 model Document {
-  id             String    @id @default(uuid())
-  userId         String
-  name           String
-  category       String?   // Document category (math, science, etc.)
-  contentType    String    // MIME type
-  size           Int?      // File size in bytes
-  uploadedAt     DateTime  @default(now())
-  processedAt    DateTime?
-  elevenLabsDocId String?  @unique // ElevenLabs Knowledge Base document ID
-  content        String?   @db.Text // Extracted text content
-  metadata       Json?     // Additional document metadata
-  deletedAt      DateTime?
+  id              String    @id @default(uuid())
+  userId          String
+  name            String
+  category        String?   // Document category (math, science, etc.)
+  contentType     String    // MIME type
+  uploadedAt      DateTime  @default(now())
+  elevenLabsDocId String?   @unique // ElevenLabs Knowledge Base document ID
+  deletedAt       DateTime?
 
   // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)

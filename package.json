@@ -8,6 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
+    "test": "jest",
+    "test:watch": "jest --watch",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
     "db:studio": "prisma studio"
@@ -15,28 +17,33 @@
   "dependencies": {
     "@11labs/client": "^0.2.0",
     "@prisma/client": "^5.22.0",
+    "mammoth": "^1.8.0",
     "next": "^14.2.0",
     "next-auth": "^5.0.0-beta.25",
+    "pdf-parse": "^1.1.1",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "react-dropzone": "^14.2.3",
+    "tesseract.js": "^5.1.0",
     "zod": "^3.23.0",
-    "zustand": "^4.5.0",
-    "pdf-parse": "^1.1.1",
-    "mammoth": "^1.8.0",
-    "tesseract.js": "^5.1.0"
+    "zustand": "^4.5.0"
   },
   "devDependencies": {
+    "@prisma/internals": "^5.22.0",
+    "@types/jest": "^30.0.0",
     "@types/node": "^20.14.0",
+    "@types/pdf-parse": "^1.1.4",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
-    "@types/pdf-parse": "^1.1.4",
     "autoprefixer": "^10.4.19",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.0",
+    "jest": "^30.2.0",
     "postcss": "^8.4.38",
     "prisma": "^5.22.0",
     "tailwindcss": "^3.4.0",
+    "ts-jest": "^29.4.6",
+    "ts-node": "^10.9.2",
     "typescript": "^5.4.0"
   },
   "engines": {

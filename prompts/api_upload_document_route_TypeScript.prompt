@@ -1,4 +1,3 @@
-<prompt>
 You are tasked with creating an API route that handles multipart file uploads, validates file type and size, extracts text content, and forwards to ElevenLabs Knowledge Base API with user namespace. This route processes document uploads and makes them available to the conversational AI agent for retrieval during learning sessions.
 
 Requirements
@@ -75,4 +74,3 @@ Implementation assumptions
 - ElevenLabs client manages knowledge base uploads
 - Prisma client stores document metadata
 - User ID obtained from session.user.id
-</prompt>

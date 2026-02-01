@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAppStore } from '@/lib/store';
 import { initializeAgent } from '@/lib/api-client';
-import { getMicrophoneStream, stopAllStreams, resumeAudioContext } from '@/lib/audio-utils';
+import { stopAllStreams, resumeAudioContext } from '@/lib/audio-utils';
 
 /**
  * VoiceInterface Component
@@ -26,7 +26,7 @@ export default function VoiceInterface() {
     isAgentSpeaking,
     isConnecting,
     transcript,
-    ws,
+    conversation,
     connect,
     disconnect,
     toggleMute,
@@ -40,6 +40,13 @@ export default function VoiceInterface() {
     transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [transcript]);
 
+  // Sync mute state with ElevenLabs conversation
+  useEffect(() => {
+    if (conversation) {
+      conversation.setMicMuted(isMuted);
+    }
+  }, [isMuted, conversation]);
+
   /**
    * Start a new conversation
    */
@@ -52,14 +59,11 @@ export default function VoiceInterface() {
       // Resume audio context (required for some browsers)
       await resumeAudioContext();
 
-      // Get microphone access
-      await getMicrophoneStream();
-
-      // Initialize agent session
+      // Initialize agent session (microphone access is handled by the SDK)
       const session = await initializeAgent();
 
-      // Connect to WebSocket
-      connect(session.websocket_url, session.conversation_id, session.session_id);
+      // Connect using ElevenLabs SDK (handles audio streaming automatically)
+      await connect(session.websocket_url, session.conversation_id, session.session_id);
     } catch (err) {
       console.error('Failed to start conversation:', err);
       setError(err instanceof Error ? err.message : 'Failed to start conversation');
@@ -70,9 +74,9 @@ export default function VoiceInterface() {
   /**
    * Stop the current conversation
    */
-  const handleStop = useCallback(() => {
+  const handleStop = useCallback(async () => {
     stopAllStreams();
-    disconnect();
+    await disconnect();
     setTextInputMode(false);
     setTextInput('');
   }, [disconnect]);
@@ -81,19 +85,16 @@ export default function VoiceInterface() {
    * Send a text message
    */
   const handleSendText = useCallback(() => {
-    if (!textInput.trim() || !ws) return;
+    if (!textInput.trim() || !conversation) return;
 
     // Add user message to transcript
     addMessage({ role: 'user', content: textInput });
 
-    // Send to WebSocket
-    ws.send(JSON.stringify({
-      type: 'text',
-      text: textInput,
-    }));
+    // Send using ElevenLabs SDK
+    conversation.sendUserMessage(textInput);
 
     setTextInput('');
-  }, [textInput, ws, addMessage]);
+  }, [textInput, conversation, addMessage]);
 
   /**
    * Handle text input key press

@@ -90,14 +90,6 @@ export default function ConversationList() {
     }
   };
 
-  /**
-   * Format duration in minutes
-   */
-  const formatDuration = (seconds: number | null): string => {
-    if (!seconds) return 'Unknown duration';
-    const minutes = Math.round(seconds / 60);
-    return minutes === 1 ? '1 minute' : `${minutes} minutes`;
-  };
 
   /**
    * Format date
@@ -188,8 +180,6 @@ export default function ConversationList() {
               </h3>
               <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
                 <span>{formatDate(conversation.startedAt)}</span>
-                <span>•</span>
-                <span>{formatDuration(conversation.duration)}</span>
                 {conversation.messageCount > 0 && (
                   <>
                     <span>•</span>

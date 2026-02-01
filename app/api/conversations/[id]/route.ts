@@ -68,6 +68,92 @@ export async function GET(
 }
 
 /**
+ * PATCH /api/conversations/[id]
+ * 
+ * Updates conversation metadata (title, duration, summary).
+ * Called when a conversation ends to save session info.
+ */
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const userId = getDemoUserId();
+    const conversationId = params.id;
+
+    // Parse request body
+    const body = await request.json();
+    const { title, duration, summary, messages } = body;
+
+    // Verify ownership
+    const conversation = await prisma.conversation.findUnique({
+      where: { id: conversationId },
+      select: { userId: true, startedAt: true },
+    });
+
+    if (!conversation) {
+      return NextResponse.json(
+        { error: 'Conversation not found' },
+        { status: 404 }
+      );
+    }
+
+    if (conversation.userId !== userId) {
+      return NextResponse.json(
+        { error: 'Not authorized to update this conversation' },
+        { status: 403 }
+      );
+    }
+
+    // Store messages if provided
+    if (messages && Array.isArray(messages) && messages.length > 0) {
+      const messageData = messages.map((msg: { role: string; content: string; timestamp: string }, index: number) => ({
+        conversationId,
+        role: msg.role,
+        content: msg.content,
+        timestamp: new Date(msg.timestamp),
+        metadata: {},
+      }));
+
+      await prisma.conversationMessage.createMany({
+        data: messageData,
+        skipDuplicates: true,
+      });
+    }
+
+    // Update conversation
+    const updated = await prisma.conversation.update({
+      where: { id: conversationId },
+      data: {
+        ...(title && { title }),
+        ...(duration !== undefined && { duration }),
+        ...(summary && { summary }),
+        endedAt: new Date(),
+        metadata: {
+          messageCount: messages?.length || 0,
+        },
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      conversation: {
+        id: updated.id,
+        title: updated.title,
+        duration: updated.duration,
+      },
+    });
+  } catch (error) {
+    console.error('Update conversation error:', error);
+    
+    return NextResponse.json(
+      { error: 'Failed to update conversation' },
+      { status: 500 }
+    );
+  }
+}
+
+/**
  * DELETE /api/conversations/[id]
  * 
  * Soft deletes a conversation.

@@ -1,7 +1,8 @@
 'use client';
 
 import { create } from 'zustand';
-import type { Conversation, Document } from './types';
+import { Conversation } from '@11labs/client';
+import type { Conversation as ConversationType, Document } from './types';
 
 /**
  * Message in the conversation transcript
@@ -35,13 +36,14 @@ export interface AppState {
   currentConversationId: string | null;
   transcript: TranscriptMessage[];
   
-  // WebSocket
-  ws: WebSocket | null;
+  // ElevenLabs Conversation instance
+  conversation: Conversation | null;
   sessionId: string | null;
+  sessionStartTime: Date | null;
 
   // ============= Conversation Actions =============
-  connect: (websocketUrl: string, conversationId: string, sessionId: string) => void;
-  disconnect: () => void;
+  connect: (websocketUrl: string, conversationId: string, sessionId: string) => Promise<void>;
+  disconnect: () => Promise<void>;
   toggleMute: () => void;
   setAgentSpeaking: (speaking: boolean) => void;
   addMessage: (message: Omit<TranscriptMessage, 'id' | 'timestamp'>) => void;
@@ -59,11 +61,11 @@ export interface AppState {
   removeDocument: (documentId: string) => void;
 
   // ============= History State =============
-  conversations: Conversation[];
+  conversations: ConversationType[];
   isLoadingConversations: boolean;
   
   // ============= History Actions =============
-  setConversations: (conversations: Conversation[]) => void;
+  setConversations: (conversations: ConversationType[]) => void;
   setLoadingConversations: (loading: boolean) => void;
   removeConversation: (conversationId: string) => void;
 }
@@ -86,78 +88,138 @@ export const useAppStore = create<AppState>((set, get) => ({
   isConnecting: false,
   currentConversationId: null,
   transcript: [],
-  ws: null,
+  conversation: null,
   sessionId: null,
+  sessionStartTime: null,
 
   // ============= Conversation Actions =============
-  connect: (websocketUrl: string, conversationId: string, sessionId: string) => {
-    const { ws: existingWs } = get();
+  connect: async (websocketUrl: string, conversationId: string, sessionId: string) => {
+    const { conversation: existingConversation, addMessage } = get();
     
     // Close existing connection
-    if (existingWs) {
-      existingWs.close();
+    if (existingConversation) {
+      await existingConversation.endSession();
     }
 
-    const ws = new WebSocket(websocketUrl);
+    set({ isConnecting: true });
 
-    ws.onopen = () => {
-      set({
-        isConversationActive: true,
-        isConnecting: false,
-        currentConversationId: conversationId,
-        sessionId,
-      });
-    };
-
-    ws.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        
-        // Handle different message types from ElevenLabs
-        if (data.type === 'audio') {
-          set({ isAgentSpeaking: true });
-        } else if (data.type === 'audio_end') {
-          set({ isAgentSpeaking: false });
-        } else if (data.type === 'transcript') {
-          const { addMessage } = get();
-          addMessage({
-            role: data.role || 'assistant',
-            content: data.text || data.content,
+    try {
+      // Use the ElevenLabs SDK to start the session
+      const conversation = await Conversation.startSession({
+        signedUrl: websocketUrl,
+        onConnect: () => {
+          console.log('ElevenLabs conversation connected');
+          set({
+            isConversationActive: true,
+            isConnecting: false,
+            currentConversationId: conversationId,
+            sessionId,
+            sessionStartTime: new Date(),
           });
-        }
-      } catch (error) {
-        console.error('Failed to parse WebSocket message:', error);
-      }
-    };
-
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      set({ isConnecting: false });
-    };
-
-    ws.onclose = () => {
-      set({
-        isConversationActive: false,
-        isAgentSpeaking: false,
-        ws: null,
-        sessionId: null,
+        },
+        onDisconnect: () => {
+          console.log('ElevenLabs conversation disconnected');
+          set({
+            isConversationActive: false,
+            isAgentSpeaking: false,
+            conversation: null,
+            sessionId: null,
+          });
+        },
+        onMessage: (message) => {
+          // ElevenLabs SDK message format: { message: string; source: Role }
+          // source is 'user' or 'ai'
+          console.log('ElevenLabs message:', message);
+          
+          if (message.message && message.source) {
+            const role = message.source === 'ai' ? 'assistant' : 'user';
+            console.log('Adding message:', role, message.message);
+            addMessage({
+              role,
+              content: message.message,
+            });
+          }
+        },
+        onModeChange: (mode) => {
+          // mode.mode can be 'speaking' or 'listening'
+          set({ isAgentSpeaking: mode.mode === 'speaking' });
+        },
+        onError: (error) => {
+          console.error('ElevenLabs conversation error:', error);
+          set({ isConnecting: false });
+        },
       });
-    };
 
-    set({ ws, isConnecting: true });
+      set({ conversation });
+    } catch (error) {
+      console.error('Failed to start ElevenLabs conversation:', error);
+      set({ isConnecting: false });
+      throw error;
+    }
   },
 
-  disconnect: () => {
-    const { ws } = get();
-    if (ws) {
-      ws.close();
+  disconnect: async () => {
+    const { conversation, currentConversationId, transcript } = get();
+    
+    console.log('Disconnect called:', { currentConversationId, transcriptLength: transcript.length });
+    
+    // Save conversation metadata before disconnecting
+    if (currentConversationId) {
+      try {
+        // Get title from first user message or first assistant message
+        const firstUserMessage = transcript.find(m => m.role === 'user');
+        const firstMessage = transcript[0];
+        let title = 'Learning Session';
+        
+        if (firstUserMessage) {
+          title = firstUserMessage.content.substring(0, 50);
+          if (firstUserMessage.content.length > 50) {
+            title += '...';
+          }
+        } else if (firstMessage) {
+          // Use first assistant message if no user message
+          title = firstMessage.content.substring(0, 50);
+          if (firstMessage.content.length > 50) {
+            title += '...';
+          }
+        }
+
+        console.log('Saving conversation with title:', title);
+
+        // Save to API
+        const response = await fetch(`/api/conversations/${currentConversationId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title,
+            messages: transcript.map(m => ({
+              role: m.role,
+              content: m.content,
+              timestamp: m.timestamp.toISOString(),
+            })),
+          }),
+        });
+        
+        if (response.ok) {
+          console.log('Conversation saved successfully');
+        } else {
+          console.error('Failed to save conversation:', response.status, await response.text());
+        }
+      } catch (error) {
+        console.error('Failed to save conversation:', error);
+      }
+    }
+    
+    if (conversation) {
+      await conversation.endSession();
     }
     set({
       isConversationActive: false,
       isAgentSpeaking: false,
-      ws: null,
+      conversation: null,
       sessionId: null,
       currentConversationId: null,
+      sessionStartTime: null,
     });
   },
 

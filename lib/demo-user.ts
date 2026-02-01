@@ -1,3 +1,5 @@
+import { prisma } from './prisma';
+
 /**
  * Demo User for Hackathon Mode
  * 
@@ -27,4 +29,20 @@ export function getDemoUser() {
  */
 export function getDemoUserId(): string {
   return DEMO_USER.id;
+}
+
+/**
+ * Ensure the demo user exists in the database
+ * This should be called before any database operations that require a user
+ */
+export async function ensureDemoUserExists(): Promise<void> {
+  await prisma.user.upsert({
+    where: { id: DEMO_USER.id },
+    update: {}, // Don't update anything if exists
+    create: {
+      id: DEMO_USER.id,
+      email: DEMO_USER.email,
+      name: DEMO_USER.name,
+    },
+  });
 }

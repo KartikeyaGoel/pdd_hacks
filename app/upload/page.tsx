@@ -10,7 +10,7 @@ import FileUploader from '@/components/FileUploader';
  */
 export default function UploadPage() {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-background">
       {/* Sidebar Navigation */}
       <Sidebar />
       
@@ -19,10 +19,10 @@ export default function UploadPage() {
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Upload Materials
+            <h1 className="text-3xl font-bold text-text-primary mb-2">
+              Upload <span className="text-gradient">Materials</span>
             </h1>
-            <p className="text-gray-600">
+            <p className="text-text-secondary">
               Upload your textbooks, notes, and study materials. 
               Your AI coach will use these to provide personalized learning experiences.
             </p>

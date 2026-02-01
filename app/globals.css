@@ -4,16 +4,24 @@
 
 @layer base {
   :root {
-    --primary: #6B46C1;
-    --secondary: #F3F4F6;
-    --accent: #10B981;
-    --text-primary: #111827;
-    --text-secondary: #6B7280;
+    /* Dark mode palette */
+    --background: #0A0E17;
+    --surface: #111827;
+    --surface-elevated: #1F2937;
+    /* Accent colors */
+    --mint: #3DDC97;
+    --coral: #FF6B6B;
+    /* Text colors */
+    --text-primary: #F9FAFB;
+    --text-secondary: #9CA3AF;
+    --text-muted: #6B7280;
+    /* Semantic */
     --error: #EF4444;
+    --success: #3DDC97;
   }
 
   body {
-    @apply text-text-primary bg-white;
+    @apply text-text-primary bg-background;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 
@@ -24,28 +32,105 @@
   button {
     @apply transition-all duration-200;
   }
+
+  /* Custom scrollbar for dark mode */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--surface);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--surface-elevated);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+  }
 }
 
 @layer components {
+  /* Primary button with mint accent */
   .btn-primary {
-    @apply bg-primary text-white px-6 py-3 rounded-lg hover:bg-purple-700 active:scale-95;
+    @apply bg-mint text-background px-6 py-3 rounded-xl font-medium;
+    @apply hover:brightness-110 active:scale-95;
+    @apply transition-colors duration-150;
   }
 
+  /* Secondary button */
   .btn-secondary {
-    @apply bg-secondary text-text-primary px-4 py-2 rounded-lg hover:bg-gray-300 active:scale-95;
+    @apply bg-surface-elevated text-text-primary px-4 py-2 rounded-xl;
+    @apply hover:bg-white/10 active:scale-95;
+    @apply border border-white/10;
+    @apply transition-colors duration-150;
   }
 
+  /* Coral/danger button */
+  .btn-coral {
+    @apply bg-coral text-white px-6 py-3 rounded-xl font-medium;
+    @apply hover:brightness-110 active:scale-95;
+    @apply transition-colors duration-150;
+  }
+
+  /* Card - removed expensive backdrop-blur */
   .card {
-    @apply bg-white rounded-lg shadow-md p-6 border border-gray-200;
+    @apply bg-surface rounded-2xl p-6;
+    @apply border border-white/5;
   }
 
+  .card-hover {
+    @apply hover:border-white/10;
+    @apply transition-colors duration-150;
+  }
+
+  /* Glass effect - use sparingly */
+  .glass {
+    @apply bg-surface/90;
+    @apply border border-white/10;
+  }
+
+  /* Input field for dark mode */
   .input-field {
-    @apply border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary;
+    @apply bg-surface-elevated border border-white/10 rounded-xl px-4 py-3;
+    @apply text-text-primary placeholder-text-muted;
+    @apply focus:outline-none focus:ring-2 focus:ring-mint/50 focus:border-mint/50;
+    @apply transition-colors duration-150;
+  }
+
+  /* Waveform bar base styles */
+  .waveform-bar {
+    @apply w-1.5 rounded-full;
+    transform-origin: center;
+  }
+
+  /* Topic/tag pills */
+  .pill {
+    @apply px-3 py-1.5 rounded-full text-xs font-medium;
+  }
+
+  .pill-mint {
+    @apply bg-mint/10 text-mint border border-mint/20;
+  }
+
+  .pill-coral {
+    @apply bg-coral/10 text-coral border border-coral/20;
   }
 }
 
 @layer utilities {
-  .pulse-animation {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  /* Text gradient */
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-mint to-coral;
+  }
+
+  /* Background gradient */
+  .bg-gradient-accent {
+    @apply bg-gradient-to-r from-mint to-coral;
   }
 }

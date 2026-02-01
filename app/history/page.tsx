@@ -11,7 +11,7 @@ import ConversationList from '@/components/ConversationList';
  */
 export default function HistoryPage() {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-background">
       {/* Sidebar Navigation */}
       <Sidebar />
       
@@ -20,10 +20,10 @@ export default function HistoryPage() {
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Learning History
+            <h1 className="text-3xl font-bold text-text-primary mb-2">
+              Learning <span className="text-gradient">History</span>
             </h1>
-            <p className="text-gray-600">
+            <p className="text-text-secondary">
               Review your past learning sessions and continue where you left off.
             </p>
           </div>

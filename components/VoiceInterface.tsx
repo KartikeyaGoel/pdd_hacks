@@ -3,21 +3,38 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAppStore } from '@/lib/store';
 import { initializeAgent } from '@/lib/api-client';
-import { stopAllStreams, resumeAudioContext } from '@/lib/audio-utils';
+import { getMicrophoneStream, stopAllStreams, resumeAudioContext } from '@/lib/audio-utils';
+
+/**
+ * Waveform Bar Heights for animation
+ * These create a dynamic audio visualization effect
+ */
+const WAVEFORM_PATTERNS = {
+  idle: [20, 28, 24, 28, 20],
+  listening: [24, 32, 28, 32, 24],
+  speaking: [
+    [16, 40, 32, 48, 24],
+    [24, 48, 40, 32, 36],
+    [32, 24, 48, 40, 28],
+    [40, 32, 24, 48, 32],
+    [28, 40, 36, 24, 40],
+  ],
+};
 
 /**
  * VoiceInterface Component
  * 
  * Main conversation UI with:
- * - Large play/pause button
- * - Pulsing animation when agent speaks
- * - Mute, text input, and stop controls
+ * - Animated waveform button with state-based colors
+ * - Glow effects that pulse with activity
+ * - Dark mode styling throughout
  * - Live transcript display
  */
 export default function VoiceInterface() {
   const [textInputMode, setTextInputMode] = useState(false);
   const [textInput, setTextInput] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [speakingFrame, setSpeakingFrame] = useState(0);
   const transcriptEndRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -47,6 +64,28 @@ export default function VoiceInterface() {
     }
   }, [isMuted, conversation]);
 
+  // Animate waveform when agent is speaking
+  useEffect(() => {
+    if (isAgentSpeaking) {
+      const interval = setInterval(() => {
+        setSpeakingFrame((prev) => (prev + 1) % WAVEFORM_PATTERNS.speaking.length);
+      }, 150);
+      return () => clearInterval(interval);
+    } else {
+      setSpeakingFrame(0);
+    }
+  }, [isAgentSpeaking]);
+
+  /**
+   * Get current waveform heights based on state
+   */
+  const getWaveformHeights = () => {
+    if (isConnecting) return WAVEFORM_PATTERNS.idle;
+    if (isAgentSpeaking) return WAVEFORM_PATTERNS.speaking[speakingFrame];
+    if (isConversationActive) return WAVEFORM_PATTERNS.listening;
+    return WAVEFORM_PATTERNS.idle;
+  };
+
   /**
    * Start a new conversation
    */
@@ -59,7 +98,10 @@ export default function VoiceInterface() {
       // Resume audio context (required for some browsers)
       await resumeAudioContext();
 
-      // Initialize agent session (microphone access is handled by the SDK)
+      // Get microphone access first
+      await getMicrophoneStream();
+
+      // Initialize agent session
       const session = await initializeAgent();
 
       // Connect using ElevenLabs SDK (handles audio streaming automatically)
@@ -106,93 +148,129 @@ export default function VoiceInterface() {
     }
   };
 
+  const waveformHeights = getWaveformHeights();
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8">
+    <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-background">
       {/* Header */}
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-3">Montessori</h1>
-        <p className="text-lg text-gray-600">Your AI Learning Coach</p>
+        <h1 className="text-4xl font-bold text-text-primary mb-3">
+          <span className="text-gradient">Montessori</span>
+        </h1>
+        <p className="text-lg text-text-secondary">Your AI Learning Coach</p>
       </div>
 
-      {/* Main Control Button */}
-      <div className="mb-8">
+      {/* Main Waveform Button */}
+      <div className="mb-8 relative">
+        {/* Main button */}
         <button
           onClick={isConversationActive ? handleStop : handleStart}
           disabled={isConnecting}
           className={`
-            w-32 h-32 rounded-full flex items-center justify-center
-            text-white text-4xl font-bold
-            transition-all duration-300
+            relative w-40 h-40 rounded-full flex items-center justify-center
             ${isConnecting 
-              ? 'bg-gray-400 cursor-wait' 
+              ? 'bg-surface-elevated cursor-wait border-2 border-text-muted/30' 
               : isConversationActive 
-                ? 'bg-red-500 hover:bg-red-600' 
-                : 'bg-purple-600 hover:bg-purple-700'
+                ? isAgentSpeaking
+                  ? 'bg-coral/10 border-2 border-coral/50'
+                  : 'bg-mint/10 border-2 border-mint/50'
+                : 'bg-surface-elevated border-2 border-mint/30 hover:border-mint/50'
             }
-            ${isAgentSpeaking ? 'animate-pulse shadow-lg shadow-purple-500/50' : ''}
             disabled:opacity-50 disabled:cursor-not-allowed
           `}
         >
           {isConnecting ? (
-            <svg className="animate-spin w-12 h-12" fill="none" viewBox="0 0 24 24">
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              />
-            </svg>
+            /* Connecting spinner */
+            <div className="relative">
+              <svg className="animate-spin w-12 h-12 text-mint" fill="none" viewBox="0 0 24 24">
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+            </div>
           ) : isConversationActive ? (
-            <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">
-              <rect x="6" y="4" width="4" height="16" rx="1" />
-              <rect x="14" y="4" width="4" height="16" rx="1" />
-            </svg>
+            /* Waveform visualization */
+            <div className="flex items-center justify-center gap-1.5">
+              {waveformHeights.map((height, i) => (
+                <div
+                  key={i}
+                  className={`w-2 rounded-full ${isAgentSpeaking ? 'bg-coral' : 'bg-mint'}`}
+                  style={{ height: `${height}px` }}
+                />
+              ))}
+            </div>
           ) : (
-            <svg className="w-12 h-12 ml-1" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M8 5v14l11-7z" />
-            </svg>
+            /* Idle state - waveform preview */
+            <div className="flex items-center justify-center gap-1.5">
+              {waveformHeights.map((height, i) => (
+                <div
+                  key={i}
+                  className="w-2 rounded-full bg-mint/60"
+                  style={{ height: `${height}px` }}
+                />
+              ))}
+            </div>
           )}
         </button>
       </div>
 
       {/* Status indicator */}
-      <div className="mb-8 h-6">
+      <div className="mb-8 h-8 flex items-center justify-center">
         {isConnecting && (
-          <p className="text-gray-500 animate-pulse">Connecting...</p>
+          <p className="text-text-secondary flex items-center gap-2">
+            <span className="w-2 h-2 bg-mint rounded-full" />
+            Connecting...
+          </p>
         )}
         {isConversationActive && isAgentSpeaking && (
-          <p className="text-purple-600 font-medium">Coach is speaking...</p>
+          <p className="text-coral font-medium flex items-center gap-2">
+            <span className="w-2 h-2 bg-coral rounded-full" />
+            Coach is speaking...
+          </p>
         )}
         {isConversationActive && !isAgentSpeaking && (
-          <p className="text-green-600 font-medium">Listening...</p>
+          <p className="text-mint font-medium flex items-center gap-2">
+            <span className="w-2 h-2 bg-mint rounded-full" />
+            Listening...
+          </p>
+        )}
+        {!isConversationActive && !isConnecting && (
+          <p className="text-text-muted">Tap to start learning</p>
         )}
       </div>
 
       {/* Error display */}
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 max-w-md">
-          {error}
+        <div className="mb-6 p-4 bg-coral/10 border border-coral/30 rounded-xl text-coral max-w-md">
+          <div className="flex items-center gap-2">
+            <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {error}
+          </div>
         </div>
       )}
 
       {/* Secondary Controls */}
       {isConversationActive && (
-        <div className="flex gap-4 mb-8">
+        <div className="flex gap-3 mb-8">
           <button
             onClick={toggleMute}
             className={`
-              flex items-center gap-2 px-4 py-2 rounded-lg
-              transition-all duration-200
+              flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium
               ${isMuted 
-                ? 'bg-red-100 text-red-700 hover:bg-red-200' 
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-coral/20 text-coral border border-coral/30' 
+                : 'bg-surface-elevated text-text-primary border border-white/10 hover:bg-white/10'
               }
             `}
           >
@@ -217,11 +295,10 @@ export default function VoiceInterface() {
           <button
             onClick={() => setTextInputMode(!textInputMode)}
             className={`
-              flex items-center gap-2 px-4 py-2 rounded-lg
-              transition-all duration-200
+              flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium
               ${textInputMode 
-                ? 'bg-purple-100 text-purple-700' 
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-mint/20 text-mint border border-mint/30' 
+                : 'bg-surface-elevated text-text-primary border border-white/10 hover:bg-white/10'
               }
             `}
           >
@@ -233,11 +310,10 @@ export default function VoiceInterface() {
 
           <button
             onClick={handleStop}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-coral/20 text-coral border border-coral/30 font-medium"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <rect x="6" y="6" width="12" height="12" rx="2" />
             </svg>
             Stop
           </button>
@@ -254,12 +330,13 @@ export default function VoiceInterface() {
               onChange={(e) => setTextInput(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Type your message..."
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="input-field flex-1"
+              autoFocus
             />
             <button
               onClick={handleSendText}
               disabled={!textInput.trim()}
-              className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              className="px-6 py-3 bg-mint text-background rounded-xl font-medium hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Send
             </button>
@@ -269,8 +346,8 @@ export default function VoiceInterface() {
 
       {/* Transcript */}
       {transcript.length > 0 && (
-        <div className="w-full max-w-2xl bg-gray-50 rounded-xl p-6 max-h-80 overflow-y-auto">
-          <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
+        <div className="w-full max-w-2xl bg-surface rounded-2xl p-6 max-h-80 overflow-y-auto border border-white/10">
+          <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-4">
             Conversation
           </h3>
           <div className="space-y-4">
@@ -283,13 +360,13 @@ export default function VoiceInterface() {
                   className={`
                     max-w-[80%] px-4 py-3 rounded-2xl
                     ${message.role === 'user'
-                      ? 'bg-purple-600 text-white rounded-br-md'
-                      : 'bg-white border border-gray-200 text-gray-800 rounded-bl-md'
+                      ? 'bg-mint/20 text-text-primary rounded-br-md border border-mint/20'
+                      : 'bg-surface-elevated text-text-primary rounded-bl-md border border-white/10'
                     }
                   `}
                 >
-                  <p className="text-sm">{message.content}</p>
-                  <p className={`text-xs mt-1 ${message.role === 'user' ? 'text-purple-200' : 'text-gray-400'}`}>
+                  <p className="text-sm leading-relaxed">{message.content}</p>
+                  <p className={`text-xs mt-1.5 ${message.role === 'user' ? 'text-mint/60' : 'text-text-muted'}`}>
                     {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
@@ -302,9 +379,9 @@ export default function VoiceInterface() {
 
       {/* Instructions when not active */}
       {!isConversationActive && !isConnecting && transcript.length === 0 && (
-        <div className="mt-8 text-center text-gray-500 max-w-md">
-          <p className="mb-2">Press the play button to start learning.</p>
-          <p className="text-sm">
+        <div className="mt-8 text-center text-text-secondary max-w-md">
+          <p className="mb-3">Press the button to start learning.</p>
+          <p className="text-sm text-text-muted">
             Upload your study materials first, then ask questions about them
             or explore any topic you want to learn about.
           </p>
